@@ -2,6 +2,7 @@ import useGame from './hooks/useGame'
 import Game from './components/Game'
 import ResetBubbleArea from './components/ResetBubbleArea'
 import Toolbar from './components/Toolbar'
+import Drawer from './components/Drawer'
 
 function App() {
   const {
@@ -49,7 +50,20 @@ function App() {
         canDragPieceHandler={canDragPieceHandler}
       />
       <ResetBubbleArea onBubblePopped={resetGameHandler} />
-      <Toolbar resetGameHandler={resetGameHandler} />
+      <Drawer backgroundColor='gray' borderRadius='5px'>
+        <Toolbar
+          resetGameHandler={resetGameHandler}
+          undoMoveHandler={() => {
+            /* TODO: implement in useGame */
+          }}
+          suggestMoveHandler={() => {
+            /* TODO: implement in useGame */
+          }}
+          showPreviousMoveHandler={() => {
+            /* TODO: implement in useGame */
+          }}
+        />
+      </Drawer>
     </div>
   )
 }

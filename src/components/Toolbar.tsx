@@ -1,49 +1,57 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 
 interface ToolbarProps {
-    resetGameHandler: () => void;
+  resetGameHandler: () => void
+  undoMoveHandler: () => void
+  suggestMoveHandler: () => void
+  showPreviousMoveHandler: () => void
 }
 
 const Container = styled.div`
-display: none;
-position: fixed;
-padding: 8px 4px calc(env(safe-area-inset-bottom) + 8px) 4px;
-bottom: 0;
-width: 100%;
-background-color: transparent;
-flex-direction: row;
-justify-content: space-around;
-align-items: center;
+  display: flex;
+  position: static;
+  padding: 8px;
+  bottom: 0;
+  width: 100%;
+  background-color: transparent;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`
 
-@media (min-width: 40rem) {
-    display: flex;
-    position: static;
-}
-`;
+const Button = styled.button`
+  color: #283228;
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 2.75rem;
+  height: 2.75rem;
+  text-align: center;
+  background-color: #ededed;
+  box-shadow: 1px 2px 2px #cccccc;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 1.375rem;
+  text-transform: uppercase;
+  margin: 0 16px;
 
-const ResetButton = styled.button`
-color: #283228;
-font-size: 0.75rem;
-font-weight: 700;
-width: 2.5rem;
-height: 2.5rem;
-text-align: center;
-background-color: white;
-border: none;
-cursor: pointer;
-padding: 0;
-border-radius: 8px;
-text-transform: uppercase;
-
-&:active {
+  &:active {
     opacity: 0.5;
-}
-`;
+  }
+`
 
-const Toolbar = ({ resetGameHandler }: ToolbarProps) => (
-    <Container>
-        <ResetButton onClick={resetGameHandler}>New</ResetButton>
-    </Container>
-);
+const Toolbar = ({
+  resetGameHandler,
+  undoMoveHandler,
+  suggestMoveHandler,
+  showPreviousMoveHandler,
+}: ToolbarProps) => (
+  <Container>
+    <Button onClick={resetGameHandler}>New</Button>
+    <Button onClick={undoMoveHandler}>Undo</Button>
+    <Button onClick={suggestMoveHandler}>Sug</Button>
+    <Button onClick={showPreviousMoveHandler}>SWPV</Button>
+  </Container>
+)
 
-export default Toolbar;
+export default Toolbar
