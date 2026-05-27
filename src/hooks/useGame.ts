@@ -28,6 +28,16 @@ export interface MoveHighlight {
   to: Square
 }
 
+// Creates a deep copy of a Chess instance that preserves the full move history.
+// PGN round-trip is used instead of the FEN constructor so that game.history()
+// and game.undo() remain functional on the copy.
+const cloneGame = (chess: Chess): Chess => {
+  const copy = new Chess()
+  const pgn = chess.pgn()
+  if (pgn) copy.loadPgn(pgn)
+  return copy
+}
+
 const useGame = () => {
   const [game, setGame] = useState<Chess | undefined>(undefined)
   const [oldGameState, setOldGameState] = useState<OldGameState | undefined>(
@@ -38,15 +48,6 @@ const useGame = () => {
   const [focusedSquare, setFocusedSquare] = useState<Square | undefined>(
     undefined,
   )
-
-  // FEN stack for undo. Each entry is the FEN *before* a half-move was made,
-  // so undoing 2 entries always restores the player's turn.
-  // Note: chess.js instances are created from FEN (no move history), so we
-  // maintain this stack ourselves rather than relying on Chess.undo().
-  const [gameHistory, setGameHistory] = useState<string[]>([])
-
-  // Tracks the most recent half-move so "show previous move" can highlight it.
-  const [lastMove, setLastMove] = useState<MoveHighlight | undefined>(undefined)
 
   // Set to true briefly when the player taps "show previous move".
   const [showingLastMove, setShowingLastMove] = useState(false)
@@ -85,16 +86,39 @@ const useGame = () => {
 
     // Either fetch the game saved in localStorage or start a new game.
     if (!game) {
-      const savedGameFEN = localStorage.getItem('game-fen')
+      const savedPgn = localStorage.getItem('game-pgn')
       const savedPlayerColor = localStorage.getItem(
         'player-color',
       ) as Color | null
-      setGame(savedGameFEN ? new Chess(savedGameFEN) : new Chess())
+
+      const restoredGame = new Chess()
+      if (savedPgn) {
+        try {
+          restoredGame.loadPgn(savedPgn)
+        } catch {
+          // Corrupted save — fall through to start a fresh game.
+        }
+      } else {
+        // Migration: if an old FEN-based save exists, load that board position.
+        // Full move history can't be recovered from FEN alone, but the player
+        // at least returns to the right position.
+        const legacyFen = localStorage.getItem('game-fen')
+        if (legacyFen) {
+          try {
+            restoredGame.load(legacyFen)
+          } catch {
+            // Corrupted legacy save — start fresh.
+          }
+          localStorage.removeItem('game-fen')
+        }
+      }
+
+      setGame(restoredGame)
       setPlayerColor(savedPlayerColor ?? (Math.random() > 0.5 ? 'w' : 'b'))
       return
     }
 
-    localStorage.setItem('game-fen', game.fen())
+    localStorage.setItem('game-pgn', game.pgn())
     if (playerColor) {
       localStorage.setItem('player-color', playerColor)
     }
@@ -103,15 +127,12 @@ const useGame = () => {
     if (playerColor && game.turn() !== playerColor && !game.isGameOver()) {
       const controller = new AbortController()
 
-      // Capture the FEN now so we can push it to history once the AI responds.
-      const fenBeforeAiMove = game.fen()
-
       chessAPI
         .post<SuggestMoveResponse>(
           '/suggest-move',
           {
-            fen: fenBeforeAiMove,
-            // difficulty will be added here once the API supports it
+            fen: game.fen(),
+            // difficulty will be wired here once the API supports it
           },
           {
             signal: controller.signal,
@@ -134,19 +155,12 @@ const useGame = () => {
               return prevGame
             }
             try {
-              const gameCopy = new Chess(prevGame.fen())
+              const gameCopy = cloneGame(prevGame)
               gameCopy.move(bestMove)
               return gameCopy
             } catch {
               return prevGame
             }
-          })
-
-          // Record history and last-move after the AI's half-move.
-          setGameHistory((prev) => [...prev, fenBeforeAiMove])
-          setLastMove({
-            from: bestMove.from as Square,
-            to: bestMove.to as Square,
           })
         })
         .catch((error: unknown) => {
@@ -188,8 +202,6 @@ const useGame = () => {
       fen: game.fen(),
       color: playerColorFull,
     })
-    setGameHistory([])
-    setLastMove(undefined)
     setSuggestedMove(undefined)
     setShowingLastMove(false)
     clearTimeout(showLastMoveTimerRef.current)
@@ -202,10 +214,8 @@ const useGame = () => {
       return null
     }
     try {
-      const gameCopy = new Chess(game.fen())
+      const gameCopy = cloneGame(game)
       const result = gameCopy.move(move)
-      setGameHistory((prev) => [...prev, game.fen()])
-      setLastMove({ from: result.from, to: result.to })
       setSuggestedMove(undefined)
       setShowingLastMove(false)
       setGame(gameCopy)
@@ -217,26 +227,22 @@ const useGame = () => {
 
   // Undoes 2 half-moves so it is always the player's turn after undoing.
   // If fewer than 2 half-moves have been made, undoes whatever is available.
+  // Replays verbose history minus the last 2 moves into a fresh Chess instance.
   const undoMoveHandler = () => {
-    if (!game || gameHistory.length === 0) {
-      return
-    }
+    if (!game) return
+    const moves = game.history({ verbose: true })
+    if (moves.length === 0) return
 
-    const targetIndex = Math.max(0, gameHistory.length - 2)
-    const targetFen = gameHistory[targetIndex]
+    const movesToKeep = moves.slice(0, -2)
+    const newGame = new Chess()
+    movesToKeep.forEach((m) =>
+      newGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
+    )
 
-    setGame(new Chess(targetFen))
-    setGameHistory((prev) => prev.slice(0, targetIndex))
+    setGame(newGame)
     setFocusedSquare(undefined)
     setSuggestedMove(undefined)
     setShowingLastMove(false)
-
-    // Restore the last-move highlight to the move just before the undone position.
-    // If there are no earlier moves we clear it; otherwise we leave lastMove intact
-    // so the player can still see what they're going back to.
-    if (targetIndex === 0) {
-      setLastMove(undefined)
-    }
   }
 
   // Requests a move suggestion from the API and highlights it for 3 seconds.
@@ -273,11 +279,10 @@ const useGame = () => {
       .catch((error: unknown) => console.error(error))
   }
 
-  // Briefly highlights the squares involved in the most recent half-move.
+  // Briefly highlights the squares of the most recent half-move for 2.5 seconds.
+  // The last move is derived from game.history() — no separate state needed.
   const showPreviousMoveHandler = () => {
-    if (!lastMove) {
-      return
-    }
+    if (!game || game.history().length === 0) return
 
     clearTimeout(showLastMoveTimerRef.current)
     setShowingLastMove(true)
@@ -286,6 +291,13 @@ const useGame = () => {
       2500,
     )
   }
+
+  // Derived from game history rather than tracked in state.
+  const lastVerboseMove = game?.history({ verbose: true }).at(-1)
+  const previousMoveHighlight: MoveHighlight | undefined =
+    showingLastMove && lastVerboseMove
+      ? { from: lastVerboseMove.from, to: lastVerboseMove.to }
+      : undefined
 
   // Handles what happens when a piece is dropped on a square.
   const pieceDroppedHandler = ({
@@ -406,7 +418,7 @@ const useGame = () => {
     ),
     isDrawGame: !!(game && game.isDraw()),
     suggestedMove,
-    previousMoveHighlight: showingLastMove ? lastMove : undefined,
+    previousMoveHighlight,
     difficulty,
     setDifficulty,
     resetGameHandler,
