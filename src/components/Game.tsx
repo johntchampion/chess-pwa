@@ -5,6 +5,7 @@ import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
 import CheckIndicator from './CheckIndicator';
+import type { MoveHighlight } from '../hooks/useGame';
 
 interface OldGameState {
     fen: string;
@@ -30,6 +31,10 @@ interface GameProps {
     isDrawGame: boolean;
     squareTappedHandler: (args: SquareHandlerArgs) => void;
     canDragPieceHandler: (args: PieceHandlerArgs) => boolean;
+    /** Temporarily highlighted squares from the "suggest move" action. */
+    suggestedMove?: MoveHighlight;
+    /** Temporarily highlighted squares from the "show previous move" action. */
+    previousMoveHighlight?: MoveHighlight;
 }
 
 const GameContainer = styled.div`
@@ -117,9 +122,26 @@ const Game = ({
     isDrawGame,
     squareTappedHandler,
     canDragPieceHandler,
+    suggestedMove,
+    previousMoveHighlight,
 }: GameProps) => {
 
     const squareStyles: Record<string, CSSProperties> = {};
+
+    // Previous-move highlight (light blue). Applied first so other
+    // highlights can render on top if squares overlap.
+    if (previousMoveHighlight) {
+        squareStyles[previousMoveHighlight.from] = { background: 'rgba(100, 180, 255, 0.35)' };
+        squareStyles[previousMoveHighlight.to]   = { background: 'rgba(100, 180, 255, 0.55)' };
+    }
+
+    // Suggested-move highlight (amber). Renders on top of previous-move.
+    if (suggestedMove) {
+        squareStyles[suggestedMove.from] = { background: 'rgba(255, 200, 50, 0.40)' };
+        squareStyles[suggestedMove.to]   = { background: 'rgba(255, 200, 50, 0.65)' };
+    }
+
+    // Legal-move dots for the focused piece.
     focusedSquareLegalMoves.forEach(m => {
         const targetPiece = game?.get(m.to);
         const sourcePiece = focusedSquare ? game?.get(focusedSquare) : undefined;
@@ -130,10 +152,10 @@ const Game = ({
             borderRadius: '50%'
         };
     });
+
+    // Focused-square highlight always renders on top.
     if (focusedSquare) {
-        squareStyles[focusedSquare] = {
-            background: 'rgba(255, 255, 0, 0.4)'
-        };
+        squareStyles[focusedSquare] = { background: 'rgba(255, 255, 0, 0.4)' };
     }
 
     // Build the board array. During a reset, the resigned game board is prepended
