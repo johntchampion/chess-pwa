@@ -1,9 +1,7 @@
 import useGame from './hooks/useGame'
-import useDrawer from './hooks/useDrawer'
 import Game from './components/Game'
 import ResetBubbleArea from './components/ResetBubbleArea'
 import Drawer from './components/Drawer'
-import Toolbar from './components/Toolbar'
 
 function App() {
   const {
@@ -23,7 +21,11 @@ function App() {
     isDrawGame,
     suggestedMove,
     previousMoveHighlight,
+    difficulty,
+    setDifficulty,
+    preferredColor,
     resetGameHandler,
+    resetWithColor,
     undoMoveHandler,
     suggestMoveHandler,
     showPreviousMoveHandler,
@@ -32,21 +34,6 @@ function App() {
     squareTappedHandler,
     canDragPieceHandler,
   } = useGame()
-
-  const { isOpen, mode, openDrawer, closeDrawer } = useDrawer()
-
-  // The peek strip always shows the four quick-action buttons.
-  // When sub-mode controls are added (Phase 5/6), this will switch
-  // based on `mode` and the peekContentKey will change to trigger
-  // the cross-fade transition.
-  const peekContent = (
-    <Toolbar
-      resetGameHandler={resetGameHandler}
-      undoMoveHandler={undoMoveHandler}
-      suggestMoveHandler={suggestMoveHandler}
-      showPreviousMoveHandler={showPreviousMoveHandler}
-    />
-  )
 
   return (
     <div className='relative'>
@@ -74,11 +61,14 @@ function App() {
       />
       <ResetBubbleArea onBubblePopped={resetGameHandler} />
       <Drawer
-        isOpen={isOpen}
-        onOpen={openDrawer}
-        onClose={closeDrawer}
-        peekContent={peekContent}
-        peekContentKey={mode}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        preferredColor={preferredColor}
+        resetGameHandler={resetGameHandler}
+        resetWithColor={resetWithColor}
+        undoMoveHandler={undoMoveHandler}
+        suggestMoveHandler={suggestMoveHandler}
+        showPreviousMoveHandler={showPreviousMoveHandler}
       />
     </div>
   )

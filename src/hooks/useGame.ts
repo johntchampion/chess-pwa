@@ -8,6 +8,8 @@ import type {
 } from 'react-chessboard'
 import chessAPI from '../util/chessAPI'
 
+export type ColorChoice = Color | 'random'
+
 interface OldGameState {
   fen: string
   color: 'white' | 'black'
@@ -90,8 +92,16 @@ const useGame = () => {
     undefined,
   )
 
-  // Difficulty level 1–8 (stored for future API integration; not yet sent).
-  const [difficulty, setDifficulty] = useState<number>(5)
+  const [difficulty, setDifficulty] = useState<number>(() => {
+    return Number(localStorage.getItem('difficulty') ?? 5)
+  })
+
+  const [preferredColor, setPreferredColor] = useState<ColorChoice>(() => {
+    return (
+      (localStorage.getItem('preferred-color') as ColorChoice | null) ??
+      'random'
+    )
+  })
 
   const showLastMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const suggestMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -103,6 +113,14 @@ const useGame = () => {
       clearTimeout(suggestMoveTimerRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem('difficulty', String(difficulty))
+  }, [difficulty])
+
+  useEffect(() => {
+    localStorage.setItem('preferred-color', preferredColor)
+  }, [preferredColor])
 
   const playerColorFull: 'white' | 'black' =
     playerColor === 'w' ? 'white' : 'black'
@@ -167,10 +185,16 @@ const useGame = () => {
     const raf = requestAnimationFrame(() => {
       setIsResettingBoard(true)
       setGame(new Chess())
-      setPlayerColor(Math.random() > 0.5 ? 'w' : 'b')
+      setPlayerColor(
+        preferredColor === 'random'
+          ? Math.random() > 0.5
+            ? 'w'
+            : 'b'
+          : preferredColor,
+      )
     })
     return () => cancelAnimationFrame(raf)
-  }, [oldGameState])
+  }, [oldGameState, preferredColor])
 
   // The board reset is finished; remove the animation elements.
   useEffect(() => {
@@ -183,13 +207,17 @@ const useGame = () => {
     }
   }, [isResettingBoard])
 
-  // Handles what happens when a game reset is requested.
   const resetGameHandler = () => {
     setOldGameState({ fen: game.fen(), color: playerColorFull })
     setSuggestedMove(undefined)
     setShowingLastMove(false)
     clearTimeout(showLastMoveTimerRef.current)
     clearTimeout(suggestMoveTimerRef.current)
+  }
+
+  const resetWithColor = (color: ColorChoice) => {
+    setPreferredColor(color)
+    resetGameHandler()
   }
 
   // Make a move. Returns the Move if valid, null otherwise.
@@ -347,7 +375,9 @@ const useGame = () => {
     previousMoveHighlight,
     difficulty,
     setDifficulty,
+    preferredColor,
     resetGameHandler,
+    resetWithColor,
     undoMoveHandler,
     suggestMoveHandler,
     showPreviousMoveHandler,
