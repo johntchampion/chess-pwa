@@ -39,12 +39,45 @@ const cloneGame = (chess: Chess): Chess => {
 }
 
 const useGame = () => {
-  const [game, setGame] = useState<Chess | undefined>(undefined)
+  // Lazy initialisers run once on mount, synchronously, so localStorage is read
+  // before the first render — no separate "init" effect needed.
+  const [game, setGame] = useState<Chess>(() => {
+    const savedPgn = localStorage.getItem('game-pgn')
+    const g = new Chess()
+    if (savedPgn) {
+      try {
+        g.loadPgn(savedPgn)
+      } catch {
+        // Corrupted save — fall through with a fresh game.
+      }
+    } else {
+      // One-time migration: if an old FEN save exists, load that board position.
+      // Full history can't be recovered from FEN, but the player returns to the
+      // right position. The legacy key is removed after migrating.
+      const legacyFen = localStorage.getItem('game-fen')
+      if (legacyFen) {
+        try {
+          g.load(legacyFen)
+        } catch {
+          // Corrupted legacy save — start fresh.
+        }
+        localStorage.removeItem('game-fen')
+      }
+    }
+    return g
+  })
+
+  const [playerColor, setPlayerColor] = useState<Color>(() => {
+    return (
+      (localStorage.getItem('player-color') as Color | null) ??
+      (Math.random() > 0.5 ? 'w' : 'b')
+    )
+  })
+
   const [oldGameState, setOldGameState] = useState<OldGameState | undefined>(
     undefined,
   )
   const [isResettingBoard, setIsResettingBoard] = useState<boolean>(false)
-  const [playerColor, setPlayerColor] = useState<Color | undefined>(undefined)
   const [focusedSquare, setFocusedSquare] = useState<Square | undefined>(
     undefined,
   )
@@ -73,58 +106,18 @@ const useGame = () => {
 
   const playerColorFull: 'white' | 'black' =
     playerColor === 'w' ? 'white' : 'black'
-  const focusedSquareLegalMoves: Move[] =
-    focusedSquare && game
-      ? game.moves({ square: focusedSquare, verbose: true })
-      : []
+  const focusedSquareLegalMoves: Move[] = focusedSquare
+    ? game.moves({ square: focusedSquare, verbose: true })
+    : []
 
-  // Manages what happens after each game state change.
+  // Persists state and triggers the AI move after every game/color change.
   useEffect(() => {
-    if (oldGameState) {
-      return
-    }
-
-    // Either fetch the game saved in localStorage or start a new game.
-    if (!game) {
-      const savedPgn = localStorage.getItem('game-pgn')
-      const savedPlayerColor = localStorage.getItem(
-        'player-color',
-      ) as Color | null
-
-      const restoredGame = new Chess()
-      if (savedPgn) {
-        try {
-          restoredGame.loadPgn(savedPgn)
-        } catch {
-          // Corrupted save — fall through to start a fresh game.
-        }
-      } else {
-        // Migration: if an old FEN-based save exists, load that board position.
-        // Full move history can't be recovered from FEN alone, but the player
-        // at least returns to the right position.
-        const legacyFen = localStorage.getItem('game-fen')
-        if (legacyFen) {
-          try {
-            restoredGame.load(legacyFen)
-          } catch {
-            // Corrupted legacy save — start fresh.
-          }
-          localStorage.removeItem('game-fen')
-        }
-      }
-
-      setGame(restoredGame)
-      setPlayerColor(savedPlayerColor ?? (Math.random() > 0.5 ? 'w' : 'b'))
-      return
-    }
+    if (oldGameState) return
 
     localStorage.setItem('game-pgn', game.pgn())
-    if (playerColor) {
-      localStorage.setItem('player-color', playerColor)
-    }
+    localStorage.setItem('player-color', playerColor)
 
-    // If it's the opponent's turn, call the API for a move.
-    if (playerColor && game.turn() !== playerColor && !game.isGameOver()) {
+    if (game.turn() !== playerColor && !game.isGameOver()) {
       const controller = new AbortController()
 
       chessAPI
@@ -134,15 +127,11 @@ const useGame = () => {
             fen: game.fen(),
             // difficulty will be wired here once the API supports it
           },
-          {
-            signal: controller.signal,
-          },
+          { signal: controller.signal },
         )
         .then((response) => {
           const bestMoveStr = response.data?.best_move
-          if (!bestMoveStr) {
-            return
-          }
+          if (!bestMoveStr) return
 
           const bestMove: MoveInput = {
             from: bestMoveStr.substring(0, 2),
@@ -151,9 +140,6 @@ const useGame = () => {
           }
 
           setGame((prevGame) => {
-            if (!prevGame) {
-              return prevGame
-            }
             try {
               const gameCopy = cloneGame(prevGame)
               gameCopy.move(bestMove)
@@ -167,19 +153,23 @@ const useGame = () => {
           console.error(error)
         })
 
-      return () => {
-        controller.abort()
-      }
+      return () => controller.abort()
     }
   }, [game, playerColor, oldGameState])
 
-  // The DOM has updated with the new chess board. It can now be animated.
+  // Triggers the board-slide animation after the DOM has been updated with the
+  // old board. requestAnimationFrame defers state updates until after the browser
+  // has painted the initial two-board layout, which is required for the CSS
+  // transition to animate from a visible "before" state.
   useEffect(() => {
-    if (oldGameState) {
+    if (!oldGameState) return
+
+    const raf = requestAnimationFrame(() => {
       setIsResettingBoard(true)
       setGame(new Chess())
       setPlayerColor(Math.random() > 0.5 ? 'w' : 'b')
-    }
+    })
+    return () => cancelAnimationFrame(raf)
   }, [oldGameState])
 
   // The board reset is finished; remove the animation elements.
@@ -195,13 +185,7 @@ const useGame = () => {
 
   // Handles what happens when a game reset is requested.
   const resetGameHandler = () => {
-    if (!game) {
-      return
-    }
-    setOldGameState({
-      fen: game.fen(),
-      color: playerColorFull,
-    })
+    setOldGameState({ fen: game.fen(), color: playerColorFull })
     setSuggestedMove(undefined)
     setShowingLastMove(false)
     clearTimeout(showLastMoveTimerRef.current)
@@ -210,9 +194,6 @@ const useGame = () => {
 
   // Make a move. Returns the Move if valid, null otherwise.
   const makeMove = (move: MoveInput): Move | null => {
-    if (!game) {
-      return null
-    }
     try {
       const gameCopy = cloneGame(game)
       const result = gameCopy.move(move)
@@ -229,7 +210,6 @@ const useGame = () => {
   // If fewer than 2 half-moves have been made, undoes whatever is available.
   // Replays verbose history minus the last 2 moves into a fresh Chess instance.
   const undoMoveHandler = () => {
-    if (!game) return
     const moves = game.history({ verbose: true })
     if (moves.length === 0) return
 
@@ -248,22 +228,13 @@ const useGame = () => {
   // Requests a move suggestion from the API and highlights it for 3 seconds.
   // Only active on the player's turn.
   const suggestMoveHandler = () => {
-    if (
-      !game ||
-      !playerColor ||
-      game.turn() !== playerColor ||
-      game.isGameOver()
-    ) {
-      return
-    }
+    if (game.turn() !== playerColor || game.isGameOver()) return
 
     chessAPI
       .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen() })
       .then((response) => {
         const bestMoveStr = response.data?.best_move
-        if (!bestMoveStr) {
-          return
-        }
+        if (!bestMoveStr) return
 
         setSuggestedMove({
           from: bestMoveStr.substring(0, 2) as Square,
@@ -282,7 +253,7 @@ const useGame = () => {
   // Briefly highlights the squares of the most recent half-move for 2.5 seconds.
   // The last move is derived from game.history() — no separate state needed.
   const showPreviousMoveHandler = () => {
-    if (!game || game.history().length === 0) return
+    if (game.history().length === 0) return
 
     clearTimeout(showLastMoveTimerRef.current)
     setShowingLastMove(true)
@@ -293,7 +264,7 @@ const useGame = () => {
   }
 
   // Derived from game history rather than tracked in state.
-  const lastVerboseMove = game?.history({ verbose: true }).at(-1)
+  const lastVerboseMove = game.history({ verbose: true }).at(-1)
   const previousMoveHighlight: MoveHighlight | undefined =
     showingLastMove && lastVerboseMove
       ? { from: lastVerboseMove.from, to: lastVerboseMove.to }
@@ -304,28 +275,20 @@ const useGame = () => {
     sourceSquare,
     targetSquare,
   }: PieceDropHandlerArgs): boolean => {
-    if (!targetSquare) {
-      return false
-    }
-    const move: MoveInput = {
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: 'q',
-    }
-    return makeMove(move) !== null
+    if (!targetSquare) return false
+    return (
+      makeMove({ from: sourceSquare, to: targetSquare, promotion: 'q' }) !==
+      null
+    )
   }
 
   // Handles the event where a piece starts dragging (clears focused square).
-  const pieceDragHandler = (_args: PieceHandlerArgs): void => {
+  const pieceDragHandler = (): void => {
     setFocusedSquare(undefined)
   }
 
   // Handles the event where a square is tapped/clicked.
   const squareTappedHandler = ({ square }: SquareHandlerArgs): void => {
-    if (!game || !playerColor) {
-      return
-    }
-
     const sq = square as Square
     const pieceOnSquare = game.get(sq)
 
@@ -346,12 +309,7 @@ const useGame = () => {
     ) {
       setFocusedSquare(sq)
     } else if (focusedSquare) {
-      const move: MoveInput = {
-        from: focusedSquare,
-        to: sq,
-        promotion: 'q',
-      }
-      makeMove(move)
+      makeMove({ from: focusedSquare, to: sq, promotion: 'q' })
       setFocusedSquare(undefined)
     } else if (pieceOnSquare) {
       setFocusedSquare(sq)
@@ -360,9 +318,7 @@ const useGame = () => {
 
   // Determines if a piece can be dragged.
   const canDragPieceHandler = ({ square }: PieceHandlerArgs): boolean => {
-    if (!game || !square || !playerColor) {
-      return false
-    }
+    if (!square) return false
     const pieceOnSquare = game.get(square as Square)
     return !!(
       pieceOnSquare &&
@@ -380,43 +336,13 @@ const useGame = () => {
     playerColorFull,
     focusedSquare,
     focusedSquareLegalMoves,
-    opponentCheck: !!(
-      game &&
-      playerColor &&
-      game.turn() !== playerColor &&
-      game.inCheck()
-    ),
-    playerCheck: !!(
-      game &&
-      playerColor &&
-      game.turn() === playerColor &&
-      game.inCheck()
-    ),
-    opponentCheckmate: !!(
-      game &&
-      playerColor &&
-      game.turn() !== playerColor &&
-      game.isCheckmate()
-    ),
-    playerCheckmate: !!(
-      game &&
-      playerColor &&
-      game.turn() === playerColor &&
-      game.isCheckmate()
-    ),
-    opponentStalemate: !!(
-      game &&
-      playerColor &&
-      game.turn() !== playerColor &&
-      game.isStalemate()
-    ),
-    playerStalemate: !!(
-      game &&
-      playerColor &&
-      game.turn() === playerColor &&
-      game.isStalemate()
-    ),
-    isDrawGame: !!(game && game.isDraw()),
+    opponentCheck: game.turn() !== playerColor && game.inCheck(),
+    playerCheck: game.turn() === playerColor && game.inCheck(),
+    opponentCheckmate: game.turn() !== playerColor && game.isCheckmate(),
+    playerCheckmate: game.turn() === playerColor && game.isCheckmate(),
+    opponentStalemate: game.turn() !== playerColor && game.isStalemate(),
+    playerStalemate: game.turn() === playerColor && game.isStalemate(),
+    isDrawGame: game.isDraw(),
     suggestedMove,
     previousMoveHighlight,
     difficulty,
