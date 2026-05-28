@@ -59,6 +59,49 @@ Everything above `40rem` is "desktop". Below that is "mobile". The `Toolbar` (bu
 
 The project uses the React Compiler via `babel-plugin-react-compiler` (configured in `vite.config.ts`). Avoid manual `useMemo`/`useCallback` — the compiler handles memoization automatically.
 
+## In-progress feature: bottom drawer
+
+A spring-animated bottom drawer (react-spring + @use-gesture/react) that replaces the current Toolbar as the primary control surface on mobile. It is a controlled component driven by `useDrawer` (`hooks/useDrawer.ts`).
+
+### Structure
+
+- **Drag bar** — always visible at the top; dragging up/down opens/closes the drawer
+- **Peek strip** (~72 px) — always visible; content changes based on `DrawerMode`
+- **Expanded panel** (~380 px total height) — revealed when drawer is open; shows settings
+
+### Peek strip modes (`DrawerMode`)
+
+| Mode | Peek strip content |
+|---|---|
+| `'default'` | 4 quick-action buttons: New Game, Undo Move, Suggest Move, Show Previous Move |
+| `'difficulty'` | Difficulty slider (1–8) + Done button |
+| `'color'` | White / Black / Random selector + Done button |
+
+Mode changes trigger a cross-fade: `peekContentKey={mode}` forces a React remount, and the incoming content fades in via a `useSpring`.
+
+### Sub-mode flow
+
+Tapping a settings control in the expanded panel calls `enterSubMode('difficulty' | 'color')`, which closes the drawer and swaps the peek strip to the inline control. Tapping "Done" calls `exitSubMode()`, returning to the default quick-bar closed state.
+
+### Expanded panel content (when open)
+
+- "Change Difficulty" button → `enterSubMode('difficulty')`
+- "Switch Color" button → `enterSubMode('color')`
+- Captured pieces display — parsed from `game.history({ verbose: true })`
+
+### Progress
+
+- [x] `Drawer.tsx` — spring height animation, drag gesture, peek strip fade
+- [x] `useDrawer.ts` — open/close state, mode, `enterSubMode`, `exitSubMode`
+- [x] `App.tsx` — wired to `useGame` + `useDrawer`; `Toolbar` used as placeholder peek content
+- [ ] `DrawerQuickBar` — the 4 default quick-action buttons for the peek strip
+- [ ] `DrawerExpanded` — expanded panel with Difficulty/Color buttons + captured pieces
+- [ ] `DifficultyControl` — slider (1–8) + Done; replaces peek strip in `'difficulty'` mode
+- [ ] `ColorControl` — White/Black/Random + Done; replaces peek strip in `'color'` mode
+- [ ] `CapturedPieces` — Unicode piece symbols parsed from verbose move history
+- [ ] Wire `difficulty` value to the `/suggest-move` API call (pending backend support)
+- [ ] Remove `ResetBubbleArea` once `DrawerQuickBar` "New Game" button is in place
+
 ## Design philosophy
 
 The intended feel is a casual coffee-shop chess game — unhurried, visually calm. Prioritize smooth animations and clean aesthetics over feature density. Background color is `#283228` (dark green). All interactive chess UI is white on dark.
