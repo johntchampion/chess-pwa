@@ -14,6 +14,8 @@ interface DrawerProps {
   preferredColor: ColorChoice
   historyLength: number
   historyIndex: number | null
+  capturedByWhite: string[]
+  capturedByBlack: string[]
   enterHistoryView: () => void
   exitHistoryView: () => void
   setHistoryIndex: (index: number) => void
@@ -30,6 +32,8 @@ const Drawer = ({
   preferredColor,
   historyLength,
   historyIndex,
+  capturedByWhite,
+  capturedByBlack,
   enterHistoryView,
   exitHistoryView,
   setHistoryIndex,
@@ -98,6 +102,8 @@ const Drawer = ({
       difficulty={difficulty}
       preferredColor={preferredColor}
       historyLength={historyLength}
+      capturedByWhite={capturedByWhite}
+      capturedByBlack={capturedByBlack}
       onChangeDifficulty={() => enterSubMode('difficulty')}
       onSwitchColor={() => {
         setPendingColor(preferredColor)

@@ -135,6 +135,18 @@ const useGame = () => {
   const historyLength = historyMoves.length
   const isViewingHistory = historyIndex !== null
 
+  const PIECE_SORT: Record<string, number> = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
+  const capturedByWhite: string[] = []
+  const capturedByBlack: string[] = []
+  for (const move of historyMoves) {
+    if (move.captured) {
+      if (move.color === 'w') capturedByWhite.push(move.captured)
+      else capturedByBlack.push(move.captured)
+    }
+  }
+  capturedByWhite.sort((a, b) => (PIECE_SORT[a] ?? 0) - (PIECE_SORT[b] ?? 0))
+  capturedByBlack.sort((a, b) => (PIECE_SORT[a] ?? 0) - (PIECE_SORT[b] ?? 0))
+
   // Replay moves up to historyIndex to get the FEN at that point.
   const historyDisplayFen = (() => {
     if (historyIndex === null) return undefined
@@ -408,6 +420,8 @@ const useGame = () => {
     historyLength,
     isViewingHistory,
     historyDisplayFen,
+    capturedByWhite,
+    capturedByBlack,
     enterHistoryView,
     exitHistoryView,
     setHistoryIndex,

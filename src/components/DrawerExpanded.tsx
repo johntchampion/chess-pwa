@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { ColorChoice } from '../hooks/useGame'
+import CapturedPieces from './CapturedPieces'
 
 interface DrawerExpandedProps {
   difficulty: number
@@ -8,6 +9,8 @@ interface DrawerExpandedProps {
   preferredColor: ColorChoice
   historyLength: number
   onViewHistory: () => void
+  capturedByWhite: string[]
+  capturedByBlack: string[]
 }
 
 const COLOR_LABELS: Record<ColorChoice, string> = {
@@ -54,7 +57,16 @@ const ValueLabel = styled.span`
   font-weight: 500;
 `
 
-const DrawerExpanded = ({ difficulty, onChangeDifficulty, onSwitchColor, preferredColor, historyLength, onViewHistory }: DrawerExpandedProps) => (
+const DrawerExpanded = ({
+  difficulty,
+  onChangeDifficulty,
+  onSwitchColor,
+  preferredColor,
+  historyLength,
+  onViewHistory,
+  capturedByWhite,
+  capturedByBlack,
+}: DrawerExpandedProps) => (
   <Container>
     <SettingButton onClick={onChangeDifficulty}>
       Change Difficulty
@@ -66,8 +78,16 @@ const DrawerExpanded = ({ difficulty, onChangeDifficulty, onSwitchColor, preferr
     </SettingButton>
     <SettingButton onClick={onViewHistory} disabled={historyLength === 0}>
       View History
-      <ValueLabel>{historyLength === 0 ? 'No moves' : `${historyLength} move${historyLength === 1 ? '' : 's'}`}</ValueLabel>
+      <ValueLabel>
+        {historyLength === 0
+          ? 'No moves'
+          : `${historyLength} move${historyLength === 1 ? '' : 's'}`}
+      </ValueLabel>
     </SettingButton>
+    <CapturedPieces
+      capturedByWhite={capturedByWhite}
+      capturedByBlack={capturedByBlack}
+    />
   </Container>
 )
 

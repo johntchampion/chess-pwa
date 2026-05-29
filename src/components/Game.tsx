@@ -6,6 +6,7 @@ import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from '
 import Spinner from './Spinner';
 import CheckIndicator from './CheckIndicator';
 import type { MoveHighlight } from '../hooks/useGame';
+import { usePieces } from '../context/PiecesContext';
 
 interface OldGameState {
     fen: string;
@@ -129,6 +130,7 @@ const Game = ({
     historyDisplayFen,
 }: GameProps) => {
 
+    const pieces = usePieces();
     const squareStyles: Record<string, CSSProperties> = {};
 
     // Previous-move highlight (light blue). Applied first so other
@@ -170,6 +172,7 @@ const Game = ({
                 <Chessboard
                     options={{
                         id: 'chessboard',
+                        pieces,
                         boardOrientation: playerColorFull,
                         position: historyDisplayFen ?? game.fen(),
                         onPieceDrop: pieceDroppedHandler,

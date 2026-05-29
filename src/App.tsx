@@ -27,6 +27,8 @@ function App() {
     historyIndex,
     historyLength,
     historyDisplayFen,
+    capturedByWhite,
+    capturedByBlack,
     enterHistoryView,
     exitHistoryView,
     setHistoryIndex,
@@ -73,6 +75,8 @@ function App() {
         preferredColor={preferredColor}
         historyLength={historyLength}
         historyIndex={historyIndex}
+        capturedByWhite={capturedByWhite}
+        capturedByBlack={capturedByBlack}
         enterHistoryView={enterHistoryView}
         exitHistoryView={exitHistoryView}
         setHistoryIndex={setHistoryIndex}
