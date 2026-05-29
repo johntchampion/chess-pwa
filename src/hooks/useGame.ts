@@ -103,6 +103,9 @@ const useGame = () => {
     )
   })
 
+  // null = not in history view; number = index of position being viewed (0 = start)
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null)
+
   const showLastMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const suggestMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -127,6 +130,21 @@ const useGame = () => {
   const focusedSquareLegalMoves: Move[] = focusedSquare
     ? game.moves({ square: focusedSquare, verbose: true })
     : []
+
+  const historyMoves = game.history({ verbose: true })
+  const historyLength = historyMoves.length
+  const isViewingHistory = historyIndex !== null
+
+  // Replay moves up to historyIndex to get the FEN at that point.
+  const historyDisplayFen = (() => {
+    if (historyIndex === null) return undefined
+    const g = new Chess()
+    for (let i = 0; i < historyIndex; i++) {
+      const m = historyMoves[i]
+      g.move({ from: m.from, to: m.to, promotion: m.promotion })
+    }
+    return g.fen()
+  })()
 
   // Persists state and triggers the AI move after every game/color change.
   useEffect(() => {
@@ -206,6 +224,15 @@ const useGame = () => {
       return () => clearTimeout(timeout)
     }
   }, [isResettingBoard])
+
+  const enterHistoryView = () => {
+    setHistoryIndex(historyLength)
+    setFocusedSquare(undefined)
+  }
+
+  const exitHistoryView = () => {
+    setHistoryIndex(null)
+  }
 
   const resetGameHandler = () => {
     setOldGameState({ fen: game.fen(), color: playerColorFull })
@@ -303,7 +330,7 @@ const useGame = () => {
     sourceSquare,
     targetSquare,
   }: PieceDropHandlerArgs): boolean => {
-    if (!targetSquare) return false
+    if (isViewingHistory || !targetSquare) return false
     return (
       makeMove({ from: sourceSquare, to: targetSquare, promotion: 'q' }) !==
       null
@@ -317,6 +344,7 @@ const useGame = () => {
 
   // Handles the event where a square is tapped/clicked.
   const squareTappedHandler = ({ square }: SquareHandlerArgs): void => {
+    if (isViewingHistory) return
     const sq = square as Square
     const pieceOnSquare = game.get(sq)
 
@@ -346,7 +374,7 @@ const useGame = () => {
 
   // Determines if a piece can be dragged.
   const canDragPieceHandler = ({ square }: PieceHandlerArgs): boolean => {
-    if (!square) return false
+    if (isViewingHistory || !square) return false
     const pieceOnSquare = game.get(square as Square)
     return !!(
       pieceOnSquare &&
@@ -376,6 +404,13 @@ const useGame = () => {
     difficulty,
     setDifficulty,
     preferredColor,
+    historyIndex,
+    historyLength,
+    isViewingHistory,
+    historyDisplayFen,
+    enterHistoryView,
+    exitHistoryView,
+    setHistoryIndex,
     resetGameHandler,
     resetWithColor,
     undoMoveHandler,

@@ -6,11 +6,17 @@ import DrawerQuickBar from './DrawerQuickBar'
 import DrawerExpanded from './DrawerExpanded'
 import DifficultyControl from './DifficultyControl'
 import ColorControl from './ColorControl'
+import HistoryControl from './HistoryControl'
 
 interface DrawerProps {
   difficulty: number
   setDifficulty: (value: number) => void
   preferredColor: ColorChoice
+  historyLength: number
+  historyIndex: number | null
+  enterHistoryView: () => void
+  exitHistoryView: () => void
+  setHistoryIndex: (index: number) => void
   resetGameHandler: () => void
   resetWithColor: (color: ColorChoice) => void
   undoMoveHandler: () => void
@@ -22,6 +28,11 @@ const Drawer = ({
   difficulty,
   setDifficulty,
   preferredColor,
+  historyLength,
+  historyIndex,
+  enterHistoryView,
+  exitHistoryView,
+  setHistoryIndex,
   resetGameHandler,
   resetWithColor,
   undoMoveHandler,
@@ -35,6 +46,11 @@ const Drawer = ({
 
   const handleColorDone = () => {
     resetWithColor(pendingColor)
+    exitSubMode()
+  }
+
+  const handleHistoryDone = () => {
+    exitHistoryView()
     exitSubMode()
   }
 
@@ -57,6 +73,16 @@ const Drawer = ({
         />
       )
     }
+    if (mode === 'history') {
+      return (
+        <HistoryControl
+          historyIndex={historyIndex ?? historyLength}
+          historyLength={historyLength}
+          onChange={setHistoryIndex}
+          onDone={handleHistoryDone}
+        />
+      )
+    }
     return (
       <DrawerQuickBar
         onNewGame={resetGameHandler}
@@ -71,10 +97,15 @@ const Drawer = ({
     <DrawerExpanded
       difficulty={difficulty}
       preferredColor={preferredColor}
+      historyLength={historyLength}
       onChangeDifficulty={() => enterSubMode('difficulty')}
       onSwitchColor={() => {
         setPendingColor(preferredColor)
         enterSubMode('color')
+      }}
+      onViewHistory={() => {
+        enterHistoryView()
+        enterSubMode('history')
       }}
     />
   )

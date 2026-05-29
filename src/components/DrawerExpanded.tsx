@@ -6,6 +6,8 @@ interface DrawerExpandedProps {
   onChangeDifficulty: () => void
   onSwitchColor: () => void
   preferredColor: ColorChoice
+  historyLength: number
+  onViewHistory: () => void
 }
 
 const COLOR_LABELS: Record<ColorChoice, string> = {
@@ -39,6 +41,11 @@ const SettingButton = styled.button`
   &:active {
     opacity: 0.7;
   }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
 `
 
 const ValueLabel = styled.span`
@@ -47,7 +54,7 @@ const ValueLabel = styled.span`
   font-weight: 500;
 `
 
-const DrawerExpanded = ({ difficulty, onChangeDifficulty, onSwitchColor, preferredColor }: DrawerExpandedProps) => (
+const DrawerExpanded = ({ difficulty, onChangeDifficulty, onSwitchColor, preferredColor, historyLength, onViewHistory }: DrawerExpandedProps) => (
   <Container>
     <SettingButton onClick={onChangeDifficulty}>
       Change Difficulty
@@ -56,6 +63,10 @@ const DrawerExpanded = ({ difficulty, onChangeDifficulty, onSwitchColor, preferr
     <SettingButton onClick={onSwitchColor}>
       Switch Color
       <ValueLabel>{COLOR_LABELS[preferredColor]}</ValueLabel>
+    </SettingButton>
+    <SettingButton onClick={onViewHistory} disabled={historyLength === 0}>
+      View History
+      <ValueLabel>{historyLength === 0 ? 'No moves' : `${historyLength} move${historyLength === 1 ? '' : 's'}`}</ValueLabel>
     </SettingButton>
   </Container>
 )

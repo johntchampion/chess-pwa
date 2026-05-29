@@ -24,6 +24,12 @@ function App() {
     difficulty,
     setDifficulty,
     preferredColor,
+    historyIndex,
+    historyLength,
+    historyDisplayFen,
+    enterHistoryView,
+    exitHistoryView,
+    setHistoryIndex,
     resetGameHandler,
     resetWithColor,
     undoMoveHandler,
@@ -54,6 +60,7 @@ function App() {
         isDrawGame={isDrawGame}
         suggestedMove={suggestedMove}
         previousMoveHighlight={previousMoveHighlight}
+        historyDisplayFen={historyDisplayFen}
         pieceDroppedHandler={pieceDroppedHandler}
         pieceDragHandler={pieceDragHandler}
         squareTappedHandler={squareTappedHandler}
@@ -64,6 +71,11 @@ function App() {
         difficulty={difficulty}
         setDifficulty={setDifficulty}
         preferredColor={preferredColor}
+        historyLength={historyLength}
+        historyIndex={historyIndex}
+        enterHistoryView={enterHistoryView}
+        exitHistoryView={exitHistoryView}
+        setHistoryIndex={setHistoryIndex}
         resetGameHandler={resetGameHandler}
         resetWithColor={resetWithColor}
         undoMoveHandler={undoMoveHandler}

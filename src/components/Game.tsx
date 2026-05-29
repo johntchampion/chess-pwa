@@ -35,6 +35,8 @@ interface GameProps {
     suggestedMove?: MoveHighlight;
     /** Temporarily highlighted squares from the "show previous move" action. */
     previousMoveHighlight?: MoveHighlight;
+    /** FEN to display when scrubbing through game history; overrides the live board position. */
+    historyDisplayFen?: string;
 }
 
 const GameContainer = styled.div`
@@ -124,6 +126,7 @@ const Game = ({
     canDragPieceHandler,
     suggestedMove,
     previousMoveHighlight,
+    historyDisplayFen,
 }: GameProps) => {
 
     const squareStyles: Record<string, CSSProperties> = {};
@@ -168,7 +171,7 @@ const Game = ({
                     options={{
                         id: 'chessboard',
                         boardOrientation: playerColorFull,
-                        position: game.fen(),
+                        position: historyDisplayFen ?? game.fen(),
                         onPieceDrop: pieceDroppedHandler,
                         onPieceDrag: pieceDragHandler,
                         onSquareClick: squareTappedHandler,
