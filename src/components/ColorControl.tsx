@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { ColorChoice } from '../hooks/useGame'
+import { theme } from '../theme'
 
 export type { ColorChoice }
 
@@ -20,10 +21,10 @@ const Container = styled.div`
 const ColorButton = styled.button<{ $active: boolean }>`
   flex: 1;
   height: 2.5rem;
-  border: 2px solid ${({ $active }) => ($active ? '#9ab89a' : 'transparent')};
+  border: 2px solid ${({ $active }) => ($active ? theme.chipActiveBorder : 'transparent')};
   border-radius: 1.25rem;
-  background-color: ${({ $active }) => ($active ? '#3a503a' : '#2e3d2e')};
-  color: ${({ $active }) => ($active ? '#ededed' : '#7a9a7a')};
+  background-color: ${({ $active }) => ($active ? theme.chipActiveBg : theme.chipInactiveBg)};
+  color: ${({ $active }) => ($active ? theme.chipActiveText : theme.chipInactiveText)};
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
@@ -36,12 +37,12 @@ const ColorButton = styled.button<{ $active: boolean }>`
 `
 
 const DoneButton = styled.button`
-  color: #283228;
+  color: ${theme.btnText};
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0 16px;
   height: 2.5rem;
-  background-color: #ededed;
+  background-color: ${theme.btnBg};
   border: none;
   cursor: pointer;
   border-radius: 1.25rem;

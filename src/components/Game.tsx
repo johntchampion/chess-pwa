@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import styled from 'styled-components';
 import { Chessboard } from 'react-chessboard';
+import { theme } from '../theme';
 import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
@@ -136,14 +137,14 @@ const Game = ({
     // Previous-move highlight (light blue). Applied first so other
     // highlights can render on top if squares overlap.
     if (previousMoveHighlight) {
-        squareStyles[previousMoveHighlight.from] = { background: 'rgba(100, 180, 255, 0.35)' };
-        squareStyles[previousMoveHighlight.to]   = { background: 'rgba(100, 180, 255, 0.55)' };
+        squareStyles[previousMoveHighlight.from] = { background: theme.hlPrevFrom };
+        squareStyles[previousMoveHighlight.to]   = { background: theme.hlPrevTo };
     }
 
     // Suggested-move highlight (amber). Renders on top of previous-move.
     if (suggestedMove) {
-        squareStyles[suggestedMove.from] = { background: 'rgba(255, 200, 50, 0.40)' };
-        squareStyles[suggestedMove.to]   = { background: 'rgba(255, 200, 50, 0.65)' };
+        squareStyles[suggestedMove.from] = { background: theme.hlSuggestFrom };
+        squareStyles[suggestedMove.to]   = { background: theme.hlSuggestTo };
     }
 
     // Legal-move dots for the focused piece.
@@ -160,7 +161,7 @@ const Game = ({
 
     // Focused-square highlight always renders on top.
     if (focusedSquare) {
-        squareStyles[focusedSquare] = { background: 'rgba(255, 255, 0, 0.4)' };
+        squareStyles[focusedSquare] = { background: theme.hlFocus };
     }
 
     // Build the board array. During a reset, the resigned game board is prepended
@@ -181,6 +182,8 @@ const Game = ({
                         squareStyles,
                         animationDurationInMs: game.history().length === 0 ? 0 : 300,
                         canDragPiece: canDragPieceHandler,
+                        lightSquareStyle: { backgroundColor: theme.boardLight },
+                        darkSquareStyle: { backgroundColor: theme.boardDark },
                     }}
                 />
             </ChessboardCell>
@@ -194,6 +197,8 @@ const Game = ({
                         boardOrientation: oldGameState.color,
                         position: oldGameState.fen,
                         animationDurationInMs: 0,
+                        lightSquareStyle: { backgroundColor: theme.boardLight },
+                        darkSquareStyle: { backgroundColor: theme.boardDark },
                     }}
                 />
             </ChessboardCell>

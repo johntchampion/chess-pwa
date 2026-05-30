@@ -1,34 +1,35 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useDrag } from '@use-gesture/react'
 import { animated, useSpring } from 'react-spring'
 import styled from 'styled-components'
+import { theme } from '../theme'
 
 // Height of the drag-bar pill + its top/bottom margins.
-const DRAG_BAR_REGION_HEIGHT = 14;
+const DRAG_BAR_REGION_HEIGHT = 14
 
 // How tall the drawer grows when fully open.
-const EXPANDED_HEIGHT = 380;
+const EXPANDED_HEIGHT = 480
 
 interface DrawerShellProps {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
   /** Content shown in the always-visible peek strip. */
-  peekContent: ReactNode;
+  peekContent: ReactNode
   /**
    * A stable string key that identifies the current peekContent.
    * Changing this key remounts the content and triggers a fade-in.
    */
-  peekContentKey: string;
+  peekContentKey: string
   /** Content revealed only when the drawer is open. */
-  expandedContent?: ReactNode;
+  expandedContent?: ReactNode
   /**
    * Height of the peek strip in pixels (not including the drag bar).
    * Defaults to 72. Pass a larger value for sub-mode controls that
    * need more vertical room.
    */
-  peekHeight?: number;
+  peekHeight?: number
 }
 
 const DrawerContainer = styled(animated.div)`
@@ -36,7 +37,7 @@ const DrawerContainer = styled(animated.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #1e2a1e;
+  background-color: ${theme.drawerBg};
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   touch-action: none;
@@ -52,7 +53,7 @@ const DragBar = styled.div`
   width: 75px;
   height: 6px;
   border-radius: 3px;
-  background-color: #4a6040;
+  background-color: ${theme.dragHandle};
 `
 
 const PeekStrip = styled.div<{ $height: number }>`
@@ -81,9 +82,9 @@ const PeekFade = ({ children }: { children: ReactNode }) => {
     from: { opacity: 0 },
     to: { opacity: 1 },
     config: { duration: 200 },
-  });
-  return <PeekFillDiv style={style}>{children}</PeekFillDiv>;
-};
+  })
+  return <PeekFillDiv style={style}>{children}</PeekFillDiv>
+}
 
 const DrawerShell = ({
   isOpen,
@@ -94,49 +95,59 @@ const DrawerShell = ({
   expandedContent,
   peekHeight = 72,
 }: DrawerShellProps) => {
-  const [dragOffset, setDragOffset] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0)
+  const hasDragged = useRef(false)
 
   // Target height: base (open or closed) adjusted by live drag offset.
-  const baseHeight = isOpen ? EXPANDED_HEIGHT : DRAG_BAR_REGION_HEIGHT + peekHeight;
-  const targetHeight = baseHeight + dragOffset;
+  const baseHeight = isOpen
+    ? EXPANDED_HEIGHT
+    : DRAG_BAR_REGION_HEIGHT + peekHeight
+  const targetHeight = baseHeight + dragOffset
 
   const bind = useDrag(
     ({ last, movement: [, dy] }) => {
       if (last) {
         // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
-        if (dy <= 0) onOpen(); else onClose();
-        setDragOffset(0);
+        if (dy <= 0) onOpen()
+        else onClose()
+        setDragOffset(0)
+        if (Math.abs(dy) > 4) hasDragged.current = true
       } else {
-        setDragOffset(-dy);
+        setDragOffset(-dy)
       }
     },
     { axis: 'y' },
-  );
+  )
 
   const springStyles = useSpring({
     height: targetHeight,
     config: { tension: 170, mass: 0.2, friction: 10 },
-  });
+  })
 
   return (
     <DrawerContainer
       style={{ height: springStyles.height }}
       onMouseDown={(e) => {
         const target = e.target as HTMLInputElement
-        if (target.tagName !== 'INPUT' || target.type !== 'range') e.preventDefault()
+        if (target.tagName !== 'INPUT' || target.type !== 'range')
+          e.preventDefault()
+      }}
+      onClickCapture={(e) => {
+        if (hasDragged.current) {
+          hasDragged.current = false
+          e.stopPropagation()
+        }
       }}
       {...bind()}
     >
       <DragBar />
       <PeekStrip $height={peekHeight}>
         {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
-        <PeekFade key={peekContentKey}>
-          {peekContent}
-        </PeekFade>
+        <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
       </PeekStrip>
       {expandedContent}
     </DrawerContainer>
-  );
-};
+  )
+}
 
-export default DrawerShell;
+export default DrawerShell

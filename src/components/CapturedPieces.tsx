@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import PieceImage from './PieceImage'
+import { theme } from '../theme'
 
 export interface CapturedPiecesProps {
   capturedByWhite: string[]
@@ -26,7 +27,7 @@ const Section = styled.div`
   flex-direction: column;
   gap: 4px;
   padding: 4px 0 2px;
-  border-top: 1px solid #2e3d2e;
+  border-top: 1px solid ${theme.divider};
 `
 
 const PieceRow = styled.div`

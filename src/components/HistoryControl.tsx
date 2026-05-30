@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { theme } from '../theme'
 
 interface HistoryControlProps {
   historyIndex: number
@@ -16,7 +17,7 @@ const Container = styled.div`
 `
 
 const Label = styled.span`
-  color: #9ab89a;
+  color: ${theme.textAccent};
   font-size: 0.8rem;
   font-weight: 700;
   white-space: nowrap;
@@ -25,17 +26,17 @@ const Label = styled.span`
 
 const Slider = styled.input`
   flex: 1;
-  accent-color: #9ab89a;
+  accent-color: ${theme.textAccent};
   cursor: pointer;
 `
 
 const DoneButton = styled.button`
-  color: #283228;
+  color: ${theme.btnText};
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0 16px;
   height: 2.75rem;
-  background-color: #ededed;
+  background-color: ${theme.btnBg};
   border: none;
   cursor: pointer;
   border-radius: 1.375rem;
