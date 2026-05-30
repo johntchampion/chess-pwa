@@ -1,10 +1,13 @@
 import type { CSSProperties } from 'react';
 import styled from 'styled-components';
 import { Chessboard } from 'react-chessboard';
+import { theme } from '../theme';
 import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
 import CheckIndicator from './CheckIndicator';
+import type { MoveHighlight } from '../hooks/useGame';
+import { usePieces } from '../context/PiecesContext';
 
 interface OldGameState {
     fen: string;
@@ -30,6 +33,12 @@ interface GameProps {
     isDrawGame: boolean;
     squareTappedHandler: (args: SquareHandlerArgs) => void;
     canDragPieceHandler: (args: PieceHandlerArgs) => boolean;
+    /** Temporarily highlighted squares from the "suggest move" action. */
+    suggestedMove?: MoveHighlight;
+    /** Temporarily highlighted squares from the "show previous move" action. */
+    previousMoveHighlight?: MoveHighlight;
+    /** FEN to display when scrubbing through game history; overrides the live board position. */
+    historyDisplayFen?: string;
 }
 
 const GameContainer = styled.div`
@@ -117,9 +126,28 @@ const Game = ({
     isDrawGame,
     squareTappedHandler,
     canDragPieceHandler,
+    suggestedMove,
+    previousMoveHighlight,
+    historyDisplayFen,
 }: GameProps) => {
 
+    const pieces = usePieces();
     const squareStyles: Record<string, CSSProperties> = {};
+
+    // Previous-move highlight (light blue). Applied first so other
+    // highlights can render on top if squares overlap.
+    if (previousMoveHighlight) {
+        squareStyles[previousMoveHighlight.from] = { background: theme.hlPrevFrom };
+        squareStyles[previousMoveHighlight.to]   = { background: theme.hlPrevTo };
+    }
+
+    // Suggested-move highlight (amber). Renders on top of previous-move.
+    if (suggestedMove) {
+        squareStyles[suggestedMove.from] = { background: theme.hlSuggestFrom };
+        squareStyles[suggestedMove.to]   = { background: theme.hlSuggestTo };
+    }
+
+    // Legal-move dots for the focused piece.
     focusedSquareLegalMoves.forEach(m => {
         const targetPiece = game?.get(m.to);
         const sourcePiece = focusedSquare ? game?.get(focusedSquare) : undefined;
@@ -130,10 +158,10 @@ const Game = ({
             borderRadius: '50%'
         };
     });
+
+    // Focused-square highlight always renders on top.
     if (focusedSquare) {
-        squareStyles[focusedSquare] = {
-            background: 'rgba(255, 255, 0, 0.4)'
-        };
+        squareStyles[focusedSquare] = { background: theme.hlFocus };
     }
 
     // Build the board array. During a reset, the resigned game board is prepended
@@ -145,14 +173,17 @@ const Game = ({
                 <Chessboard
                     options={{
                         id: 'chessboard',
+                        pieces,
                         boardOrientation: playerColorFull,
-                        position: game.fen(),
+                        position: historyDisplayFen ?? game.fen(),
                         onPieceDrop: pieceDroppedHandler,
                         onPieceDrag: pieceDragHandler,
                         onSquareClick: squareTappedHandler,
                         squareStyles,
                         animationDurationInMs: game.history().length === 0 ? 0 : 300,
                         canDragPiece: canDragPieceHandler,
+                        lightSquareStyle: { backgroundColor: theme.boardLight },
+                        darkSquareStyle: { backgroundColor: theme.boardDark },
                     }}
                 />
             </ChessboardCell>
@@ -166,6 +197,8 @@ const Game = ({
                         boardOrientation: oldGameState.color,
                         position: oldGameState.fen,
                         animationDurationInMs: 0,
+                        lightSquareStyle: { backgroundColor: theme.boardLight },
+                        darkSquareStyle: { backgroundColor: theme.boardDark },
                     }}
                 />
             </ChessboardCell>
