@@ -1,6 +1,5 @@
 import useGame from './hooks/useGame'
 import Game from './components/Game'
-import ResetBubbleArea from './components/ResetBubbleArea'
 import Drawer from './components/Drawer'
 
 function App() {
@@ -68,7 +67,6 @@ function App() {
         squareTappedHandler={squareTappedHandler}
         canDragPieceHandler={canDragPieceHandler}
       />
-      <ResetBubbleArea onBubblePopped={resetGameHandler} />
       <Drawer
         difficulty={difficulty}
         setDifficulty={setDifficulty}
