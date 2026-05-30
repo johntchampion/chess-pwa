@@ -51,8 +51,8 @@ const DifficultyControl = ({ difficulty, onChange, onDone }: DifficultyControlPr
     <Label>Lvl {difficulty}</Label>
     <Slider
       type="range"
-      min={1}
-      max={8}
+      min={0}
+      max={20}
       value={difficulty}
       onChange={(e) => onChange(Number(e.target.value))}
       onPointerDown={(e) => e.stopPropagation()}

@@ -52,19 +52,6 @@ const useGame = () => {
       } catch {
         // Corrupted save — fall through with a fresh game.
       }
-    } else {
-      // One-time migration: if an old FEN save exists, load that board position.
-      // Full history can't be recovered from FEN, but the player returns to the
-      // right position. The legacy key is removed after migrating.
-      const legacyFen = localStorage.getItem('game-fen')
-      if (legacyFen) {
-        try {
-          g.load(legacyFen)
-        } catch {
-          // Corrupted legacy save — start fresh.
-        }
-        localStorage.removeItem('game-fen')
-      }
     }
     return g
   })
@@ -93,7 +80,7 @@ const useGame = () => {
   )
 
   const [difficulty, setDifficulty] = useState<number>(() => {
-    return Number(localStorage.getItem('difficulty') ?? 5)
+    return Number(localStorage.getItem('difficulty') ?? 10)
   })
 
   const [preferredColor, setPreferredColor] = useState<ColorChoice>(() => {
@@ -173,7 +160,7 @@ const useGame = () => {
           '/suggest-move',
           {
             fen: game.fen(),
-            // difficulty will be wired here once the API supports it
+            skill_level: difficulty,
           },
           { signal: controller.signal },
         )
@@ -298,7 +285,7 @@ const useGame = () => {
     if (game.turn() !== playerColor || game.isGameOver()) return
 
     chessAPI
-      .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen() })
+      .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen(), skill_level: difficulty })
       .then((response) => {
         const bestMoveStr = response.data?.best_move
         if (!bestMoveStr) return
