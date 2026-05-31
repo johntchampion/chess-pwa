@@ -107,10 +107,7 @@ const DrawerShell = ({
   const targetHeight = baseHeight + dragOffset
 
   const bind = useDrag(
-    ({ first, last, movement: [, dy] }) => {
-      if (first) {
-        hasDragged.current = false
-      }
+    ({ last, movement: [, dy] }) => {
       if (last) {
         // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
         if (dy <= 0) onOpen()
@@ -132,6 +129,9 @@ const DrawerShell = ({
   return (
     <DrawerContainer
       style={{ height: springStyles.height }}
+      onPointerDownCapture={() => {
+        hasDragged.current = false
+      }}
       onMouseDown={(e) => {
         const target = e.target as HTMLInputElement
         if (target.tagName !== 'INPUT' || target.type !== 'range')
