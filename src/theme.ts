@@ -1,6 +1,6 @@
 export const theme = {
   // backgrounds
-  appBg: '#1e2a1e',
+  appBg: '#141d14',
   drawerBg: '#141d14',
   surface: '#1e2a1e',
 
