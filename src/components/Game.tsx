@@ -45,7 +45,7 @@ const GameContainer = styled.div`
 display: grid;
 grid-template-rows: 2.5rem auto 2.5rem;
 margin: auto;
-margin-top: 3rem;
+margin-top: calc(3rem + env(safe-area-inset-top));
 width: 100%;
 overflow: hidden;
 max-width: 40rem;

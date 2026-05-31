@@ -107,7 +107,10 @@ const DrawerShell = ({
   const targetHeight = baseHeight + dragOffset
 
   const bind = useDrag(
-    ({ last, movement: [, dy] }) => {
+    ({ first, last, movement: [, dy] }) => {
+      if (first) {
+        hasDragged.current = false
+      }
       if (last) {
         // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
         if (dy <= 0) onOpen()
