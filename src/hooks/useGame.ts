@@ -6,6 +6,7 @@ import type {
   PieceHandlerArgs,
   SquareHandlerArgs,
 } from 'react-chessboard'
+import axios from 'axios'
 import chessAPI from '../util/chessAPI'
 
 export type ColorChoice = Color | 'random'
@@ -75,6 +76,8 @@ const useGame = () => {
 
   // Temporary board position used to animate suggest-move / prev-move previews.
   const [preview, setPreview] = useState<PreviewState | undefined>(undefined)
+  const [isSuggestLoading, setIsSuggestLoading] = useState(false)
+  const [isPrevLoading, setIsPrevLoading] = useState(false)
 
   const [difficulty, setDifficulty] = useState<number>(() => {
     return Number(localStorage.getItem('difficulty') ?? 10)
@@ -91,11 +94,13 @@ const useGame = () => {
   const [historyIndex, setHistoryIndex] = useState<number | null>(null)
 
   const previewTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const suggestAbortRef = useRef<AbortController | undefined>(undefined)
 
-  // Cleanup preview timer on unmount.
+  // Cleanup preview timer and any in-flight suggest request on unmount.
   useEffect(() => {
     return () => {
       clearTimeout(previewTimerRef.current)
+      suggestAbortRef.current?.abort()
     }
   }, [])
 
@@ -230,7 +235,11 @@ const useGame = () => {
 
   const clearPreview = () => {
     clearTimeout(previewTimerRef.current)
+    suggestAbortRef.current?.abort()
+    suggestAbortRef.current = undefined
     setPreview(undefined)
+    setIsSuggestLoading(false)
+    setIsPrevLoading(false)
   }
 
   const resetGameHandler = () => {
@@ -280,11 +289,16 @@ const useGame = () => {
   const suggestMoveHandler = () => {
     if (game.turn() !== playerColor || game.isGameOver()) return
 
+    clearPreview()
+    const controller = new AbortController()
+    suggestAbortRef.current = controller
+    setIsSuggestLoading(true)
+
     chessAPI
-      .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen(), skill_level: difficulty })
+      .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen(), skill_level: difficulty }, { signal: controller.signal })
       .then((response) => {
         const bestMoveStr = response.data?.best_move
-        if (!bestMoveStr) return
+        if (!bestMoveStr) { setIsSuggestLoading(false); return }
 
         // Compute the board position after the suggested move so react-chessboard
         // can animate the piece moving to the target square.
@@ -296,14 +310,21 @@ const useGame = () => {
             promotion: 'q',
           })
 
-          clearPreview()
           setPreview({ fen: gameCopy.fen(), animate: true })
-          previewTimerRef.current = setTimeout(() => setPreview(undefined), 1500)
+          previewTimerRef.current = setTimeout(() => {
+            setPreview(undefined)
+            setIsSuggestLoading(false)
+          }, 1500)
         } catch {
           // API returned an illegal move — silently ignore.
+          setIsSuggestLoading(false)
         }
       })
-      .catch((error: unknown) => console.error(error))
+      .catch((error: unknown) => {
+        if (axios.isCancel(error)) return
+        console.error(error)
+        setIsSuggestLoading(false)
+      })
   }
 
   // Animates the last move in reverse: piece moves back to its origin square,
@@ -318,8 +339,12 @@ const useGame = () => {
     )
 
     clearPreview()
+    setIsPrevLoading(true)
     setPreview({ fen: beforeLastMoveGame.fen(), animate: true })
-    previewTimerRef.current = setTimeout(() => setPreview(undefined), 1500)
+    previewTimerRef.current = setTimeout(() => {
+      setPreview(undefined)
+      setIsPrevLoading(false)
+    }, 1500)
   }
 
   // Handles what happens when a piece is dropped on a square.
@@ -397,6 +422,8 @@ const useGame = () => {
     playerStalemate: game.turn() === playerColor && game.isStalemate(),
     isDrawGame: game.isDraw(),
     preview,
+    isSuggestLoading,
+    isPrevLoading,
     difficulty,
     setDifficulty,
     preferredColor,

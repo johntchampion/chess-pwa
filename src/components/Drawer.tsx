@@ -24,6 +24,8 @@ interface DrawerProps {
   undoMoveHandler: () => void
   suggestMoveHandler: () => void
   showPreviousMoveHandler: () => void
+  isSuggestLoading: boolean
+  isPrevLoading: boolean
 }
 
 const Drawer = ({
@@ -42,6 +44,8 @@ const Drawer = ({
   undoMoveHandler,
   suggestMoveHandler,
   showPreviousMoveHandler,
+  isSuggestLoading,
+  isPrevLoading,
 }: DrawerProps) => {
   const { isOpen, mode, openDrawer, closeDrawer, enterSubMode, exitSubMode } =
     useDrawer()
@@ -93,6 +97,8 @@ const Drawer = ({
         onUndo={undoMoveHandler}
         onSuggest={suggestMoveHandler}
         onShowPrev={showPreviousMoveHandler}
+        isSuggestLoading={isSuggestLoading}
+        isPrevLoading={isPrevLoading}
       />
     )
   })()

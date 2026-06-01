@@ -19,6 +19,8 @@ function App() {
     playerStalemate,
     isDrawGame,
     preview,
+    isSuggestLoading,
+    isPrevLoading,
     difficulty,
     setDifficulty,
     preferredColor,
@@ -81,6 +83,8 @@ function App() {
         undoMoveHandler={undoMoveHandler}
         suggestMoveHandler={suggestMoveHandler}
         showPreviousMoveHandler={showPreviousMoveHandler}
+        isSuggestLoading={isSuggestLoading}
+        isPrevLoading={isPrevLoading}
       />
     </div>
   )

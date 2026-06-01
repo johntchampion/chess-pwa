@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { theme } from '../theme'
 
 interface DrawerQuickBarProps {
@@ -6,6 +6,8 @@ interface DrawerQuickBarProps {
   onUndo: () => void
   onSuggest: () => void
   onShowPrev: () => void
+  isSuggestLoading: boolean
+  isPrevLoading: boolean
 }
 
 const Container = styled.div`
@@ -31,7 +33,31 @@ const Btn = styled.button`
   &:active {
     opacity: 0.5;
   }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+  &:disabled:active {
+    opacity: 0.5;
+  }
 `
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`
+
+const SpinningSvg = styled.svg`
+  animation: ${spin} 0.75s linear infinite;
+`
+
+const BtnSpinner = () => (
+  <SpinningSvg width="20" height="20" viewBox="0 0 20 20" fill="none">
+    <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.75" strokeOpacity="0.3" />
+    <path d="M10 2.5a7.5 7.5 0 0 1 7.5 7.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+  </SpinningSvg>
+)
 
 const BtnLabel = styled.span`
   font-size: 0.575rem;
@@ -69,7 +95,7 @@ const PrevIcon = () => (
   </svg>
 )
 
-const DrawerQuickBar = ({ onNewGame, onUndo, onSuggest, onShowPrev }: DrawerQuickBarProps) => (
+const DrawerQuickBar = ({ onNewGame, onUndo, onSuggest, onShowPrev, isSuggestLoading, isPrevLoading }: DrawerQuickBarProps) => (
   <Container>
     <Btn onClick={onNewGame}>
       <RefreshIcon />
@@ -79,12 +105,12 @@ const DrawerQuickBar = ({ onNewGame, onUndo, onSuggest, onShowPrev }: DrawerQuic
       <UndoIcon />
       <BtnLabel>Undo</BtnLabel>
     </Btn>
-    <Btn onClick={onSuggest}>
-      <HintIcon />
+    <Btn onClick={onSuggest} disabled={isSuggestLoading}>
+      {isSuggestLoading ? <BtnSpinner /> : <HintIcon />}
       <BtnLabel>Hint</BtnLabel>
     </Btn>
-    <Btn onClick={onShowPrev}>
-      <PrevIcon />
+    <Btn onClick={onShowPrev} disabled={isPrevLoading}>
+      {isPrevLoading ? <BtnSpinner /> : <PrevIcon />}
       <BtnLabel>Prev</BtnLabel>
     </Btn>
   </Container>
