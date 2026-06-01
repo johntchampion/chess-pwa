@@ -6,7 +6,7 @@ import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
 import CheckIndicator from './CheckIndicator';
-import type { MoveHighlight } from '../hooks/useGame';
+import type { PreviewState } from '../hooks/useGame';
 import { usePieces } from '../context/PiecesContext';
 
 interface OldGameState {
@@ -33,10 +33,8 @@ interface GameProps {
     isDrawGame: boolean;
     squareTappedHandler: (args: SquareHandlerArgs) => void;
     canDragPieceHandler: (args: PieceHandlerArgs) => boolean;
-    /** Temporarily highlighted squares from the "suggest move" action. */
-    suggestedMove?: MoveHighlight;
-    /** Temporarily highlighted squares from the "show previous move" action. */
-    previousMoveHighlight?: MoveHighlight;
+    /** Temporary board position for animated suggest-move / prev-move previews. */
+    preview?: PreviewState;
     /** FEN to display when scrubbing through game history; overrides the live board position. */
     historyDisplayFen?: string;
 }
@@ -126,26 +124,12 @@ const Game = ({
     isDrawGame,
     squareTappedHandler,
     canDragPieceHandler,
-    suggestedMove,
-    previousMoveHighlight,
+    preview,
     historyDisplayFen,
 }: GameProps) => {
 
     const pieces = usePieces();
     const squareStyles: Record<string, CSSProperties> = {};
-
-    // Previous-move highlight (light blue). Applied first so other
-    // highlights can render on top if squares overlap.
-    if (previousMoveHighlight) {
-        squareStyles[previousMoveHighlight.from] = { background: theme.hlPrevFrom };
-        squareStyles[previousMoveHighlight.to]   = { background: theme.hlPrevTo };
-    }
-
-    // Suggested-move highlight (amber). Renders on top of previous-move.
-    if (suggestedMove) {
-        squareStyles[suggestedMove.from] = { background: theme.hlSuggestFrom };
-        squareStyles[suggestedMove.to]   = { background: theme.hlSuggestTo };
-    }
 
     // Legal-move dots for the focused piece.
     focusedSquareLegalMoves.forEach(m => {
@@ -175,12 +159,12 @@ const Game = ({
                         id: 'chessboard',
                         pieces,
                         boardOrientation: playerColorFull,
-                        position: historyDisplayFen ?? game.fen(),
+                        position: preview?.fen ?? historyDisplayFen ?? game.fen(),
                         onPieceDrop: pieceDroppedHandler,
                         onPieceDrag: pieceDragHandler,
                         onSquareClick: squareTappedHandler,
                         squareStyles,
-                        animationDurationInMs: game.history().length === 0 ? 0 : 300,
+                        animationDurationInMs: (preview && !preview.animate) ? 0 : (game.history().length === 0 ? 0 : 300),
                         canDragPiece: canDragPieceHandler,
                         lightSquareStyle: { backgroundColor: theme.boardLight },
                         darkSquareStyle: { backgroundColor: theme.boardDark },

@@ -25,9 +25,11 @@ interface SuggestMoveResponse {
   best_move: string
 }
 
-export interface MoveHighlight {
-  from: Square
-  to: Square
+export interface PreviewState {
+  fen: string
+  // false = instant snap (no animation); used to prime the "from" position
+  // before reverting so react-chessboard can animate the transition back.
+  animate: boolean
 }
 
 // Creates a deep copy of a Chess instance that preserves the full move history.
@@ -71,13 +73,8 @@ const useGame = () => {
     undefined,
   )
 
-  // Set to true briefly when the player taps "show previous move".
-  const [showingLastMove, setShowingLastMove] = useState(false)
-
-  // Set temporarily when the player requests a move suggestion.
-  const [suggestedMove, setSuggestedMove] = useState<MoveHighlight | undefined>(
-    undefined,
-  )
+  // Temporary board position used to animate suggest-move / prev-move previews.
+  const [preview, setPreview] = useState<PreviewState | undefined>(undefined)
 
   const [difficulty, setDifficulty] = useState<number>(() => {
     return Number(localStorage.getItem('difficulty') ?? 10)
@@ -93,14 +90,12 @@ const useGame = () => {
   // null = not in history view; number = index of position being viewed (0 = start)
   const [historyIndex, setHistoryIndex] = useState<number | null>(null)
 
-  const showLastMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const suggestMoveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  // Cleanup highlight timers on unmount.
+  // Cleanup preview timer on unmount.
   useEffect(() => {
     return () => {
-      clearTimeout(showLastMoveTimerRef.current)
-      clearTimeout(suggestMoveTimerRef.current)
+      clearTimeout(previewTimerRef.current)
     }
   }, [])
 
@@ -233,12 +228,14 @@ const useGame = () => {
     setHistoryIndex(null)
   }
 
+  const clearPreview = () => {
+    clearTimeout(previewTimerRef.current)
+    setPreview(undefined)
+  }
+
   const resetGameHandler = () => {
     setOldGameState({ fen: game.fen(), color: playerColorFull })
-    setSuggestedMove(undefined)
-    setShowingLastMove(false)
-    clearTimeout(showLastMoveTimerRef.current)
-    clearTimeout(suggestMoveTimerRef.current)
+    clearPreview()
   }
 
   const resetWithColor = (color: ColorChoice) => {
@@ -251,8 +248,7 @@ const useGame = () => {
     try {
       const gameCopy = cloneGame(game)
       const result = gameCopy.move(move)
-      setSuggestedMove(undefined)
-      setShowingLastMove(false)
+      clearPreview()
       setGame(gameCopy)
       return result
     } catch {
@@ -273,13 +269,13 @@ const useGame = () => {
       newGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
     )
 
+    clearPreview()
     setGame(newGame)
     setFocusedSquare(undefined)
-    setSuggestedMove(undefined)
-    setShowingLastMove(false)
   }
 
-  // Requests a move suggestion from the API and highlights it for 3 seconds.
+  // Requests a move suggestion from the API and animates the piece to the
+  // suggested square. The piece animates back to its origin after ~1.5 s.
   // Only active on the player's turn.
   const suggestMoveHandler = () => {
     if (game.turn() !== playerColor || game.isGameOver()) return
@@ -290,39 +286,41 @@ const useGame = () => {
         const bestMoveStr = response.data?.best_move
         if (!bestMoveStr) return
 
-        setSuggestedMove({
-          from: bestMoveStr.substring(0, 2) as Square,
-          to: bestMoveStr.substring(2, 4) as Square,
-        })
+        // Compute the board position after the suggested move so react-chessboard
+        // can animate the piece moving to the target square.
+        try {
+          const gameCopy = cloneGame(game)
+          gameCopy.move({
+            from: bestMoveStr.substring(0, 2),
+            to: bestMoveStr.substring(2, 4),
+            promotion: 'q',
+          })
 
-        clearTimeout(suggestMoveTimerRef.current)
-        suggestMoveTimerRef.current = setTimeout(
-          () => setSuggestedMove(undefined),
-          3000,
-        )
+          clearPreview()
+          setPreview({ fen: gameCopy.fen(), animate: true })
+          previewTimerRef.current = setTimeout(() => setPreview(undefined), 1500)
+        } catch {
+          // API returned an illegal move — silently ignore.
+        }
       })
       .catch((error: unknown) => console.error(error))
   }
 
-  // Briefly highlights the squares of the most recent half-move for 2.5 seconds.
-  // The last move is derived from game.history() — no separate state needed.
+  // Animates the last move in reverse: piece moves back to its origin square,
+  // holds briefly, then animates forward to its current square.
   const showPreviousMoveHandler = () => {
-    if (game.history().length === 0) return
+    const moves = game.history({ verbose: true })
+    if (moves.length === 0) return
 
-    clearTimeout(showLastMoveTimerRef.current)
-    setShowingLastMove(true)
-    showLastMoveTimerRef.current = setTimeout(
-      () => setShowingLastMove(false),
-      2500,
+    const beforeLastMoveGame = new Chess()
+    moves.slice(0, -1).forEach((m) =>
+      beforeLastMoveGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
     )
-  }
 
-  // Derived from game history rather than tracked in state.
-  const lastVerboseMove = game.history({ verbose: true }).at(-1)
-  const previousMoveHighlight: MoveHighlight | undefined =
-    showingLastMove && lastVerboseMove
-      ? { from: lastVerboseMove.from, to: lastVerboseMove.to }
-      : undefined
+    clearPreview()
+    setPreview({ fen: beforeLastMoveGame.fen(), animate: true })
+    previewTimerRef.current = setTimeout(() => setPreview(undefined), 1500)
+  }
 
   // Handles what happens when a piece is dropped on a square.
   const pieceDroppedHandler = ({
@@ -398,8 +396,7 @@ const useGame = () => {
     opponentStalemate: game.turn() !== playerColor && game.isStalemate(),
     playerStalemate: game.turn() === playerColor && game.isStalemate(),
     isDrawGame: game.isDraw(),
-    suggestedMove,
-    previousMoveHighlight,
+    preview,
     difficulty,
     setDifficulty,
     preferredColor,

@@ -18,8 +18,7 @@ function App() {
     opponentStalemate,
     playerStalemate,
     isDrawGame,
-    suggestedMove,
-    previousMoveHighlight,
+    preview,
     difficulty,
     setDifficulty,
     preferredColor,
@@ -59,8 +58,7 @@ function App() {
         opponentStalemate={opponentStalemate}
         playerStalemate={playerStalemate}
         isDrawGame={isDrawGame}
-        suggestedMove={suggestedMove}
-        previousMoveHighlight={previousMoveHighlight}
+        preview={preview}
         historyDisplayFen={historyDisplayFen}
         pieceDroppedHandler={pieceDroppedHandler}
         pieceDragHandler={pieceDragHandler}
