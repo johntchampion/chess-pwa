@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import { useDrag } from '@use-gesture/react'
 import { animated, useSpring } from 'react-spring'
 import styled from 'styled-components'
-import { theme } from '../theme'
 
 // Height of the drag-bar pill + its top/bottom margins.
 const DRAG_BAR_REGION_HEIGHT = 14
@@ -37,8 +36,8 @@ const DrawerContainer = styled(animated.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${theme.drawerBg};
-  border-top: 1px solid rgba(122, 184, 122, 0.25);
+  background-color: var(--color-drawer-bg);
+  border-top: 1px solid var(--color-drawer-border);
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
@@ -55,7 +54,7 @@ const DragBar = styled.div`
   width: 75px;
   height: 6px;
   border-radius: 3px;
-  background-color: ${theme.dragHandle};
+  background-color: var(--color-drag-handle);
 `
 
 const PeekStrip = styled.div<{ $height: number }>`

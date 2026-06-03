@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import type { ColorChoice } from '../hooks/useGame'
 import CapturedPieces from './CapturedPieces'
-import { theme } from '../theme'
 
 interface DrawerExpandedProps {
   difficulty: number
@@ -33,10 +32,10 @@ const SettingButton = styled.button`
   justify-content: space-between;
   width: 100%;
   padding: 14px 18px;
-  background-color: ${theme.surface};
+  background-color: var(--color-surface);
   border: none;
   border-radius: 0.75rem;
-  color: ${theme.textPrimary};
+  color: var(--color-text-primary);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -53,7 +52,7 @@ const SettingButton = styled.button`
 `
 
 const ValueLabel = styled.span`
-  color: ${theme.textAccent};
+  color: var(--color-text-accent);
   font-size: 0.85rem;
   font-weight: 500;
 `

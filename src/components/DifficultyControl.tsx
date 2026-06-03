@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { theme } from '../theme'
 
 interface DifficultyControlProps {
   difficulty: number
@@ -16,7 +15,7 @@ const Container = styled.div`
 `
 
 const Label = styled.span`
-  color: ${theme.textAccent};
+  color: var(--color-text-accent);
   font-size: 0.8rem;
   font-weight: 700;
   white-space: nowrap;
@@ -25,17 +24,17 @@ const Label = styled.span`
 
 const Slider = styled.input`
   flex: 1;
-  accent-color: ${theme.textAccent};
+  accent-color: var(--color-text-accent);
   cursor: pointer;
 `
 
 const DoneButton = styled.button`
-  color: ${theme.btnText};
+  color: var(--color-btn-text);
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0 16px;
   height: 2.75rem;
-  background-color: ${theme.btnBg};
+  background-color: var(--color-btn-bg);
   border: none;
   cursor: pointer;
   border-radius: 1.375rem;

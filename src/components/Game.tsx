@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import styled from 'styled-components';
 import { Chessboard } from 'react-chessboard';
-import { theme } from '../theme';
 import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
@@ -55,7 +54,7 @@ position: relative;
 `;
 
 const InfoContainer = styled.div`
-color: white;
+color: var(--color-text-primary);
 padding: 8px;
 display: flex;
 flex-direction: row;
@@ -145,7 +144,7 @@ const Game = ({
 
     // Focused-square highlight always renders on top.
     if (focusedSquare) {
-        squareStyles[focusedSquare] = { background: theme.hlFocus };
+        squareStyles[focusedSquare] = { background: 'var(--color-hl-focus)' };
     }
 
     // Build the board array. During a reset, the resigned game board is prepended
@@ -166,8 +165,8 @@ const Game = ({
                         squareStyles,
                         animationDurationInMs: (preview && !preview.animate) ? 0 : (game.history().length === 0 ? 0 : 300),
                         canDragPiece: canDragPieceHandler,
-                        lightSquareStyle: { backgroundColor: theme.boardLight },
-                        darkSquareStyle: { backgroundColor: theme.boardDark },
+                        lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
+                        darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
                     }}
                 />
             </ChessboardCell>
@@ -181,8 +180,8 @@ const Game = ({
                         boardOrientation: oldGameState.color,
                         position: oldGameState.fen,
                         animationDurationInMs: 0,
-                        lightSquareStyle: { backgroundColor: theme.boardLight },
-                        darkSquareStyle: { backgroundColor: theme.boardDark },
+                        lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
+                        darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
                     }}
                 />
             </ChessboardCell>

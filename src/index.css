@@ -1,3 +1,56 @@
+:root {
+    color-scheme: light dark;
+    --color-app-bg: #f5f0e6;
+    --color-drawer-bg: #fdfbf7;
+    --color-surface: #ece6d8;
+    --color-board-light: #d5dab5;
+    --color-board-dark: #4a6741;
+    --color-btn-bg: #5a7a5a;
+    --color-btn-text: #ffffff;
+    --color-chip-active-bg: #dce8dc;
+    --color-chip-active-border: #5a7a5a;
+    --color-chip-active-text: #1f2418;
+    --color-chip-inactive-bg: #ece6d8;
+    --color-chip-inactive-text: #8aaa8a;
+    --color-text-primary: #1f2418;
+    --color-text-accent: #5a7a5a;
+    --color-drag-handle: #c8c0b0;
+    --color-divider: #dcd6c8;
+    --color-drawer-border: rgba(90, 122, 90, 0.2);
+    --color-hl-prev-from: rgba(90, 122, 90, 0.28);
+    --color-hl-prev-to: rgba(90, 122, 90, 0.48);
+    --color-hl-suggest-from: rgba(180, 130, 20, 0.35);
+    --color-hl-suggest-to: rgba(180, 130, 20, 0.60);
+    --color-hl-focus: rgba(140, 110, 0, 0.38);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-app-bg: #1e1c1a;
+        --color-drawer-bg: #2c2a26;
+        --color-surface: #353028;
+        --color-board-light: #e8ead0;
+        --color-board-dark: #4a6741;
+        --color-btn-bg: #7ab87a;
+        --color-btn-text: #141d14;
+        --color-chip-active-bg: #2e3828;
+        --color-chip-active-border: #7ab87a;
+        --color-chip-active-text: #e8e4d8;
+        --color-chip-inactive-bg: #262218;
+        --color-chip-inactive-text: #4a6444;
+        --color-text-primary: #e8e4d8;
+        --color-text-accent: #7ab87a;
+        --color-drag-handle: #3a3630;
+        --color-divider: #302c28;
+        --color-drawer-border: rgba(122, 184, 122, 0.25);
+        --color-hl-prev-from: rgba(90, 180, 90, 0.35);
+        --color-hl-prev-to: rgba(90, 180, 90, 0.55);
+        --color-hl-suggest-from: rgba(255, 200, 50, 0.40);
+        --color-hl-suggest-to: rgba(255, 200, 50, 0.65);
+        --color-hl-focus: rgba(255, 255, 0, 0.4);
+    }
+}
+
 * {
     box-sizing: border-box;
     user-select: none;
@@ -15,7 +68,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
-    background-color: #141d14;
+    background-color: var(--color-app-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     user-select: none;

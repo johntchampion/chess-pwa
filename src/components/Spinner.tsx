@@ -28,7 +28,7 @@ animation-timing-function: linear;
 
 const Arc = styled.circle`
 fill: none;
-stroke: #FFFFFF;
+stroke: var(--color-text-primary);
 stroke-width: 3;
 stroke-dasharray: 60;
 `;

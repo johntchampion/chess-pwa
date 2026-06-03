@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components'
-import { theme } from '../theme'
 
 interface DrawerQuickBarProps {
   onNewGame: () => void
@@ -28,7 +27,7 @@ const Btn = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: ${theme.textAccent};
+  color: var(--color-text-accent);
 
   &:active {
     opacity: 0.5;
@@ -76,7 +75,7 @@ const BtnLabel = styled.span`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: ${theme.textAccent};
+  color: var(--color-text-accent);
   opacity: 0.65;
 `
 
