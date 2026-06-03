@@ -53,9 +53,21 @@ const SpinningSvg = styled.svg`
 `
 
 const BtnSpinner = () => (
-  <SpinningSvg width="20" height="20" viewBox="0 0 20 20" fill="none">
-    <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.75" strokeOpacity="0.3" />
-    <path d="M10 2.5a7.5 7.5 0 0 1 7.5 7.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+  <SpinningSvg width='20' height='20' viewBox='0 0 20 20' fill='none'>
+    <circle
+      cx='10'
+      cy='10'
+      r='7.5'
+      stroke='currentColor'
+      strokeWidth='1.75'
+      strokeOpacity='0.3'
+    />
+    <path
+      d='M10 2.5a7.5 7.5 0 0 1 7.5 7.5'
+      stroke='currentColor'
+      strokeWidth='1.75'
+      strokeLinecap='round'
+    />
   </SpinningSvg>
 )
 
@@ -69,33 +81,76 @@ const BtnLabel = styled.span`
 `
 
 const RefreshIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3.5 10a6.5 6.5 0 1 0 6.5-6.5" />
-    <polyline points="14,1 10,3.5 14,6" />
+  <svg
+    width='20'
+    height='20'
+    viewBox='0 -1 20 20'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='1.75'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <path d='M3.5 10a6.5 6.5 0 1 0 6.5-6.5' />
+    <polyline points='12,0.5 8,3.5 12,6.5' />
   </svg>
 )
 
 const UndoIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="8,5 4,9 8,13" />
-    <path d="M4 9h8a4 4 0 0 1 0 8H8" />
+  <svg
+    width='20'
+    height='20'
+    viewBox='0 0 20 20'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='1.75'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <polyline points='8,5 4,9 8,13' />
+    <path d='M4 9h8a4 4 0 0 1 0 8H8' />
   </svg>
 )
 
 const HintIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 13a5 5 0 1 1 6 0L13 15L7 15Z" />
-    <line x1="8.5" y1="17.5" x2="11.5" y2="17.5" />
+  <svg
+    width='20'
+    height='20'
+    viewBox='0 0 20 20'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='1.75'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <path d='M7 13a5 5 0 1 1 6 0L13 15L7 15Z' />
+    <line x1='8.5' y1='17.5' x2='11.5' y2='17.5' />
   </svg>
 )
 
 const PrevIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="13,4 7,10 13,16" />
+  <svg
+    width='20'
+    height='20'
+    viewBox='0 0 20 20'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='1.75'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+  >
+    <polyline points='13,4 7,10 13,16' />
   </svg>
 )
 
-const DrawerQuickBar = ({ onNewGame, onUndo, onSuggest, onShowPrev, isSuggestLoading, isPrevLoading }: DrawerQuickBarProps) => (
+const DrawerQuickBar = ({
+  onNewGame,
+  onUndo,
+  onSuggest,
+  onShowPrev,
+  isSuggestLoading,
+  isPrevLoading,
+}: DrawerQuickBarProps) => (
   <Container>
     <Btn onClick={onNewGame}>
       <RefreshIcon />
