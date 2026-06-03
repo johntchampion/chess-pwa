@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import type { ColorChoice } from '../hooks/useGame'
 import useDrawer from '../hooks/useDrawer'
+import useTheme from '../hooks/useTheme'
 import DrawerShell from './DrawerShell'
 import DrawerQuickBar from './DrawerQuickBar'
 import DrawerExpanded from './DrawerExpanded'
 import DifficultyControl from './DifficultyControl'
 import ColorControl from './ColorControl'
 import HistoryControl from './HistoryControl'
+import ThemeControl from './ThemeControl'
 
 interface DrawerProps {
   difficulty: number
@@ -50,6 +52,7 @@ const Drawer = ({
   const { isOpen, mode, openDrawer, closeDrawer, enterSubMode, exitSubMode } =
     useDrawer()
 
+  const { theme, setTheme } = useTheme()
   const [pendingColor, setPendingColor] = useState<ColorChoice>(preferredColor)
 
   const handleColorDone = () => {
@@ -93,6 +96,15 @@ const Drawer = ({
         />
       )
     }
+    if (mode === 'theme') {
+      return (
+        <ThemeControl
+          selected={theme}
+          onChange={setTheme}
+          onDone={exitSubMode}
+        />
+      )
+    }
     return (
       <DrawerQuickBar
         onNewGame={resetGameHandler}
@@ -121,6 +133,8 @@ const Drawer = ({
         enterHistoryView()
         enterSubMode('history')
       }}
+      onChangeTheme={() => enterSubMode('theme')}
+      theme={theme}
     />
   )
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type DrawerMode = 'default' | 'difficulty' | 'color' | 'history';
+export type DrawerMode = 'default' | 'difficulty' | 'color' | 'history' | 'theme';
 
 const useDrawer = () => {
   const [isOpen, setIsOpen] = useState(false);

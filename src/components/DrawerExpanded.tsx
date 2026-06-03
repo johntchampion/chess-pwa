@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import type { ColorChoice } from '../hooks/useGame'
+import { THEME_LABELS, type Theme } from '../util/themes'
 import CapturedPieces from './CapturedPieces'
 
 interface DrawerExpandedProps {
@@ -9,6 +10,8 @@ interface DrawerExpandedProps {
   preferredColor: ColorChoice
   historyLength: number
   onViewHistory: () => void
+  onChangeTheme: () => void
+  theme: Theme
   capturedByWhite: string[]
   capturedByBlack: string[]
 }
@@ -65,6 +68,8 @@ const DrawerExpanded = ({
   preferredColor,
   historyLength,
   onViewHistory,
+  onChangeTheme,
+  theme,
   capturedByWhite,
   capturedByBlack,
 }: DrawerExpandedProps) => (
@@ -84,6 +89,10 @@ const DrawerExpanded = ({
           ? 'No moves'
           : `${historyLength} move${historyLength === 1 ? '' : 's'}`}
       </ValueLabel>
+    </SettingButton>
+    <SettingButton onClick={onChangeTheme}>
+      Change Theme
+      <ValueLabel>{THEME_LABELS[theme]}</ValueLabel>
     </SettingButton>
     <CapturedPieces
       capturedByWhite={capturedByWhite}
