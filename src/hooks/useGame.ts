@@ -352,7 +352,7 @@ const useGame = () => {
     sourceSquare,
     targetSquare,
   }: PieceDropHandlerArgs): boolean => {
-    if (isViewingHistory || !targetSquare) return false
+    if (isViewingHistory || preview || isSuggestLoading || !targetSquare) return false
     return (
       makeMove({ from: sourceSquare, to: targetSquare, promotion: 'q' }) !==
       null
@@ -366,7 +366,7 @@ const useGame = () => {
 
   // Handles the event where a square is tapped/clicked.
   const squareTappedHandler = ({ square }: SquareHandlerArgs): void => {
-    if (isViewingHistory) return
+    if (isViewingHistory || preview || isSuggestLoading) return
     const sq = square as Square
     const pieceOnSquare = game.get(sq)
 
@@ -396,7 +396,7 @@ const useGame = () => {
 
   // Determines if a piece can be dragged.
   const canDragPieceHandler = ({ square }: PieceHandlerArgs): boolean => {
-    if (isViewingHistory || !square) return false
+    if (isViewingHistory || preview || isSuggestLoading || !square) return false
     const pieceOnSquare = game.get(square as Square)
     return !!(
       pieceOnSquare &&
