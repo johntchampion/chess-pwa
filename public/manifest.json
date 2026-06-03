@@ -1,6 +1,6 @@
 {
   "short_name": "Chess",
-  "name": "An elegant chess app that can be played on any device.",
+  "name": "Chess",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#283228",
-  "background_color": "#283228"
+  "theme_color": "#141d14",
+  "background_color": "#141d14"
 }
