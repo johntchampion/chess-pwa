@@ -33,8 +33,9 @@ const SettingButton = styled.button`
   width: 100%;
   padding: 14px 18px;
   background-color: var(--color-surface);
-  border: none;
+  border: 1px solid var(--color-drawer-border);
   border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   color: var(--color-text-primary);
   font-size: 0.95rem;
   font-weight: 600;

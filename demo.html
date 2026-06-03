@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess PWA — Color Scheme Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #111;
+    color: #eee;
+    padding: 40px 24px 80px;
+  }
+
+  h1 {
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: #555;
+    font-size: 0.82rem;
+    margin-bottom: 48px;
+  }
+
+  /* ── theme sections ─────────────────────────────────── */
+  .theme-section {
+    margin-bottom: 64px;
+  }
+
+  .theme-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .theme-name {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #ccc;
+    margin-bottom: 4px;
+  }
+
+  .theme-desc {
+    font-size: 0.82rem;
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .phones {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .phone-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mode-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  /* ── phone shell ──────────────────────────────────────── */
+  .phone {
+    width: 220px;
+    height: 420px;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  }
+
+  .phone-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 18px;
+    gap: 0;
+    position: relative;
+  }
+
+  /* ── board ────────────────────────────────────────────── */
+  .board {
+    width: 176px;
+    height: 176px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .sq { display: block; position: relative; }
+
+  .sq.hl-prev-from::after,
+  .sq.hl-prev-to::after,
+  .sq.hl-suggest-from::after,
+  .sq.hl-suggest-to::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* piece glyphs */
+  .sq .piece {
+    position: absolute;
+    inset: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* ── status pill ──────────────────────────────────────── */
+  .status-row {
+    width: 176px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ── drawer shell ─────────────────────────────────────── */
+  .drawer {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    border-radius: 18px 18px 0 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .drag-bar-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 4px;
+  }
+
+  .drag-bar {
+    width: 32px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  /* ── peek strip ───────────────────────────────────────── */
+  .peek {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 12px 10px;
+  }
+
+  .btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 40px;
+    height: 46px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .btn-icon { font-size: 16px; line-height: 1; }
+
+  /* ── expanded panel ───────────────────────────────────── */
+  .expanded {
+    border-top: 1px solid;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .exp-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .chip {
+    flex: 1;
+    text-align: center;
+    padding: 7px 4px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+  }
+
+  /* captured pieces row */
+  .captured-row {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0 2px;
+    font-size: 11px;
+  }
+
+  /* ── swatch strip ─────────────────────────────────────── */
+  .swatches {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.07);
+  }
+
+  .swatch-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    font-size: 9px;
+    color: #555;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    width: 1px;
+    height: 28px;
+    background: #333;
+    margin: 0 4px;
+  }
+
+  /* ── theme: current (Forest) ────────────────────────── */
+  .forest-light .phone-screen  { background: #f5f0e6; }
+  .forest-light .board-light   { background: #d5dab5; }
+  .forest-light .board-dark    { background: #4a6741; }
+  .forest-light .hl-prev-from::after { background: rgba(90,122,90,0.28); }
+  .forest-light .hl-prev-to::after   { background: rgba(90,122,90,0.48); }
+  .forest-light .hl-suggest-from::after { background: rgba(180,130,20,0.35); }
+  .forest-light .hl-suggest-to::after   { background: rgba(180,130,20,0.60); }
+  .forest-light .drawer        { background: #fdfbf7; }
+  .forest-light .drag-bar      { background: #c8c0b0; }
+  .forest-light .btn           { background: #5a7a5a; color: #fff; }
+  .forest-light .expanded      { border-color: #dcd6c8; }
+  .forest-light .chip-active   { background: #dce8dc; border-color: #5a7a5a; color: #1f2418; }
+  .forest-light .chip-inactive { background: #ece6d8; color: #8aaa8a; }
+  .forest-light .text-primary  { color: #1f2418; }
+  .forest-light .text-accent   { color: #5a7a5a; }
+
+  .forest-dark .phone-screen  { background: #1e1c1a; }
+  .forest-dark .board-light   { background: #e8ead0; }
+  .forest-dark .board-dark    { background: #4a6741; }
+  .forest-dark .hl-prev-from::after { background: rgba(90,180,90,0.35); }
+  .forest-dark .hl-prev-to::after   { background: rgba(90,180,90,0.55); }
+  .forest-dark .hl-suggest-from::after { background: rgba(255,200,50,0.40); }
+  .forest-dark .hl-suggest-to::after   { background: rgba(255,200,50,0.65); }
+  .forest-dark .drawer        { background: #2c2a26; }
+  .forest-dark .drag-bar      { background: #3a3630; }
+  .forest-dark .btn           { background: #7ab87a; color: #141d14; }
+  .forest-dark .expanded      { border-color: #302c28; }
+  .forest-dark .chip-active   { background: #2e3828; border-color: #7ab87a; color: #e8e4d8; }
+  .forest-dark .chip-inactive { background: #262218; color: #4a6444; }
+  .forest-dark .text-primary  { color: #e8e4d8; }
+  .forest-dark .text-accent   { color: #7ab87a; }
+
+  /* ── theme: Slate / Ocean ───────────────────────────── */
+  .slate-light .phone-screen  { background: #edf0f4; }
+  .slate-light .board-light   { background: #c9d8e8; }
+  .slate-light .board-dark    { background: #2d5a7a; }
+  .slate-light .hl-prev-from::after { background: rgba(45,90,122,0.25); }
+  .slate-light .hl-prev-to::after   { background: rgba(45,90,122,0.45); }
+  .slate-light .hl-suggest-from::after { background: rgba(200,140,0,0.32); }
+  .slate-light .hl-suggest-to::after   { background: rgba(200,140,0,0.58); }
+  .slate-light .drawer        { background: #f7f9fc; }
+  .slate-light .drag-bar      { background: #bcc8d4; }
+  .slate-light .btn           { background: #3a6e96; color: #fff; }
+  .slate-light .expanded      { border-color: #d8e0e8; }
+  .slate-light .chip-active   { background: #d4e4f0; border-color: #3a6e96; color: #0f2030; }
+  .slate-light .chip-inactive { background: #e8edf2; color: #7a9ab0; }
+  .slate-light .text-primary  { color: #0f2030; }
+  .slate-light .text-accent   { color: #3a6e96; }
+
+  .slate-dark .phone-screen  { background: #13181e; }
+  .slate-dark .board-light   { background: #d8e4ee; }
+  .slate-dark .board-dark    { background: #2d5a7a; }
+  .slate-dark .hl-prev-from::after { background: rgba(60,140,200,0.30); }
+  .slate-dark .hl-prev-to::after   { background: rgba(60,140,200,0.52); }
+  .slate-dark .hl-suggest-from::after { background: rgba(240,180,30,0.38); }
+  .slate-dark .hl-suggest-to::after   { background: rgba(240,180,30,0.62); }
+  .slate-dark .drawer        { background: #1c2530; }
+  .slate-dark .drag-bar      { background: #2c3a48; }
+  .slate-dark .btn           { background: #5b9bc8; color: #08141e; }
+  .slate-dark .expanded      { border-color: #22303e; }
+  .slate-dark .chip-active   { background: #1a2e40; border-color: #5b9bc8; color: #d8e8f4; }
+  .slate-dark .chip-inactive { background: #151e28; color: #3a5870; }
+  .slate-dark .text-primary  { color: #d8e8f4; }
+  .slate-dark .text-accent   { color: #5b9bc8; }
+
+  /* ── theme: Amber / Walnut ──────────────────────────── */
+  .amber-light .phone-screen  { background: #f5ede0; }
+  .amber-light .board-light   { background: #e8c99a; }
+  .amber-light .board-dark    { background: #6b4226; }
+  .amber-light .hl-prev-from::after { background: rgba(107,66,38,0.22); }
+  .amber-light .hl-prev-to::after   { background: rgba(107,66,38,0.42); }
+  .amber-light .hl-suggest-from::after { background: rgba(200,100,0,0.32); }
+  .amber-light .hl-suggest-to::after   { background: rgba(200,100,0,0.58); }
+  .amber-light .drawer        { background: #fdf8f2; }
+  .amber-light .drag-bar      { background: #d4bea0; }
+  .amber-light .btn           { background: #c07840; color: #fff; }
+  .amber-light .expanded      { border-color: #e0d0b8; }
+  .amber-light .chip-active   { background: #f0dcbc; border-color: #c07840; color: #2a1808; }
+  .amber-light .chip-inactive { background: #ece4d8; color: #b0906a; }
+  .amber-light .text-primary  { color: #2a1808; }
+  .amber-light .text-accent   { color: #c07840; }
+
+  .amber-dark .phone-screen  { background: #1a1410; }
+  .amber-dark .board-light   { background: #e8d0a0; }
+  .amber-dark .board-dark    { background: #6b4226; }
+  .amber-dark .hl-prev-from::after { background: rgba(180,120,50,0.30); }
+  .amber-dark .hl-prev-to::after   { background: rgba(180,120,50,0.52); }
+  .amber-dark .hl-suggest-from::after { background: rgba(255,180,30,0.36); }
+  .amber-dark .hl-suggest-to::after   { background: rgba(255,180,30,0.60); }
+  .amber-dark .drawer        { background: #2a2018; }
+  .amber-dark .drag-bar      { background: #3e3028; }
+  .amber-dark .btn           { background: #d48a50; color: #180c04; }
+  .amber-dark .expanded      { border-color: #382a1e; }
+  .amber-dark .chip-active   { background: #3a2818; border-color: #d48a50; color: #f0e0c0; }
+  .amber-dark .chip-inactive { background: #221810; color: #6a4830; }
+  .amber-dark .text-primary  { color: #f0e0c0; }
+  .amber-dark .text-accent   { color: #d48a50; }
+
+  /* ── theme: Plum / Dusk ─────────────────────────────── */
+  .plum-light .phone-screen  { background: #f0ecf5; }
+  .plum-light .board-light   { background: #d8cce8; }
+  .plum-light .board-dark    { background: #5a3d78; }
+  .plum-light .hl-prev-from::after { background: rgba(90,61,120,0.22); }
+  .plum-light .hl-prev-to::after   { background: rgba(90,61,120,0.42); }
+  .plum-light .hl-suggest-from::after { background: rgba(200,100,140,0.28); }
+  .plum-light .hl-suggest-to::after   { background: rgba(200,100,140,0.52); }
+  .plum-light .drawer        { background: #faf8fc; }
+  .plum-light .drag-bar      { background: #ccc0d8; }
+  .plum-light .btn           { background: #7a5298; color: #fff; }
+  .plum-light .expanded      { border-color: #dcd4e8; }
+  .plum-light .chip-active   { background: #e0d4f0; border-color: #7a5298; color: #1a0e2a; }
+  .plum-light .chip-inactive { background: #ece6f4; color: #9880b4; }
+  .plum-light .text-primary  { color: #1a0e2a; }
+  .plum-light .text-accent   { color: #7a5298; }
+
+  .plum-dark .phone-screen  { background: #160f1e; }
+  .plum-dark .board-light   { background: #ddd0f0; }
+  .plum-dark .board-dark    { background: #5a3d78; }
+  .plum-dark .hl-prev-from::after { background: rgba(140,90,200,0.28); }
+  .plum-dark .hl-prev-to::after   { background: rgba(140,90,200,0.50); }
+  .plum-dark .hl-suggest-from::after { background: rgba(220,140,180,0.34); }
+  .plum-dark .hl-suggest-to::after   { background: rgba(220,140,180,0.58); }
+  .plum-dark .drawer        { background: #221530; }
+  .plum-dark .drag-bar      { background: #342040; }
+  .plum-dark .btn           { background: #9b70cc; color: #0c0618; }
+  .plum-dark .expanded      { border-color: #2e1e3e; }
+  .plum-dark .chip-active   { background: #301e44; border-color: #9b70cc; color: #ead8f8; }
+  .plum-dark .chip-inactive { background: #1e1228; color: #5a3e78; }
+  .plum-dark .text-primary  { color: #ead8f8; }
+  .plum-dark .text-accent   { color: #9b70cc; }
+
+  /* ── theme: Stone / Ash (monochrome) ────────────────── */
+  .stone-light .phone-screen  { background: #efefed; }
+  .stone-light .board-light   { background: #d0cfc8; }
+  .stone-light .board-dark    { background: #4a4e52; }
+  .stone-light .hl-prev-from::after { background: rgba(74,78,82,0.20); }
+  .stone-light .hl-prev-to::after   { background: rgba(74,78,82,0.40); }
+  .stone-light .hl-suggest-from::after { background: rgba(180,120,0,0.28); }
+  .stone-light .hl-suggest-to::after   { background: rgba(180,120,0,0.52); }
+  .stone-light .drawer        { background: #f8f8f6; }
+  .stone-light .drag-bar      { background: #c4c2be; }
+  .stone-light .btn           { background: #4a4e52; color: #fff; }
+  .stone-light .expanded      { border-color: #dcdbd8; }
+  .stone-light .chip-active   { background: #dddde0; border-color: #4a4e52; color: #18181a; }
+  .stone-light .chip-inactive { background: #eaeae8; color: #8a9098; }
+  .stone-light .text-primary  { color: #18181a; }
+  .stone-light .text-accent   { color: #4a4e52; }
+
+  .stone-dark .phone-screen  { background: #181818; }
+  .stone-dark .board-light   { background: #e0dfda; }
+  .stone-dark .board-dark    { background: #4a4e52; }
+  .stone-dark .hl-prev-from::after { background: rgba(130,140,150,0.28); }
+  .stone-dark .hl-prev-to::after   { background: rgba(130,140,150,0.50); }
+  .stone-dark .hl-suggest-from::after { background: rgba(220,190,60,0.34); }
+  .stone-dark .hl-suggest-to::after   { background: rgba(220,190,60,0.58); }
+  .stone-dark .drawer        { background: #242424; }
+  .stone-dark .drag-bar      { background: #383838; }
+  .stone-dark .btn           { background: #8a9098; color: #0e0e0e; }
+  .stone-dark .expanded      { border-color: #2c2c2c; }
+  .stone-dark .chip-active   { background: #303438; border-color: #8a9098; color: #e8e8e8; }
+  .stone-dark .chip-inactive { background: #1e1e1e; color: #4a5058; }
+  .stone-dark .text-primary  { color: #e8e8e8; }
+  .stone-dark .text-accent   { color: #8a9098; }
+
+  /* ── theme: Moss / Tea ───────────────────────────────── */
+  /* Lighter, softer green — more sage than forest */
+  .moss-light .phone-screen  { background: #eef2ec; }
+  .moss-light .board-light   { background: #cdd9c0; }
+  .moss-light .board-dark    { background: #587060; }
+  .moss-light .hl-prev-from::after { background: rgba(88,112,96,0.22); }
+  .moss-light .hl-prev-to::after   { background: rgba(88,112,96,0.42); }
+  .moss-light .hl-suggest-from::after { background: rgba(160,130,0,0.30); }
+  .moss-light .hl-suggest-to::after   { background: rgba(160,130,0,0.55); }
+  .moss-light .drawer        { background: #f6f9f4; }
+  .moss-light .drag-bar      { background: #bccab6; }
+  .moss-light .btn           { background: #587060; color: #fff; }
+  .moss-light .expanded      { border-color: #d4dcd0; }
+  .moss-light .chip-active   { background: #d4e0cc; border-color: #587060; color: #101c14; }
+  .moss-light .chip-inactive { background: #e8ede4; color: #7a9878; }
+  .moss-light .text-primary  { color: #101c14; }
+  .moss-light .text-accent   { color: #587060; }
+
+  .moss-dark .phone-screen  { background: #141a14; }
+  .moss-dark .board-light   { background: #dce8d0; }
+  .moss-dark .board-dark    { background: #587060; }
+  .moss-dark .hl-prev-from::after { background: rgba(100,160,110,0.28); }
+  .moss-dark .hl-prev-to::after   { background: rgba(100,160,110,0.50); }
+  .moss-dark .hl-suggest-from::after { background: rgba(210,180,40,0.34); }
+  .moss-dark .hl-suggest-to::after   { background: rgba(210,180,40,0.60); }
+  .moss-dark .drawer        { background: #1e2820; }
+  .moss-dark .drag-bar      { background: #2c3c2e; }
+  .moss-dark .btn           { background: #80b880; color: #0a1208; }
+  .moss-dark .expanded      { border-color: #283428; }
+  .moss-dark .chip-active   { background: #243428; border-color: #80b880; color: #d8ead4; }
+  .moss-dark .chip-inactive { background: #181e18; color: #405840; }
+  .moss-dark .text-primary  { color: #d8ead4; }
+  .moss-dark .text-accent   { color: #80b880; }
+</style>
+</head>
+<body>
+
+<h1>Chess PWA — Color Schemes</h1>
+<p class="subtitle">Each card is a mock of the mobile UI (board + bottom drawer). Light and dark variants shown side-by-side.</p>
+
+<!-- ───────────────────────── THEME 1: FOREST (CURRENT) ───── -->
+<section class="theme-section">
+  <div class="theme-label">01 — Current</div>
+  <div class="theme-name">Forest</div>
+  <div class="theme-desc">Warm parchment light mode · deep brown-black dark · muted sage green accent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone forest-light">
+        <div class="phone-screen">
+          <div class="board"><!-- 64 squares -->
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+              <div class="exp-row captured-row text-accent">♟ ♞ ♝ &nbsp;·&nbsp; ♙ ♖</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone forest-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+              <div class="exp-row captured-row text-accent">♟ ♞ ♝ &nbsp;·&nbsp; ♙ ♖</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#f5f0e6;"></div>
+    <div class="swatch" style="background:#d5dab5;"></div>
+    <div class="swatch" style="background:#4a6741;"></div>
+    <div class="swatch" style="background:#5a7a5a;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#1e1c1a;"></div>
+    <div class="swatch" style="background:#e8ead0;"></div>
+    <div class="swatch" style="background:#4a6741;"></div>
+    <div class="swatch" style="background:#7ab87a;"></div>
+    <div class="swatch-label"><span>light</span><span>dark</span></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── THEME 2: SLATE / OCEAN ─────── -->
+<section class="theme-section">
+  <div class="theme-label">02</div>
+  <div class="theme-name">Slate</div>
+  <div class="theme-desc">Cool blue-grey background · steel blue board · ocean blue accent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone slate-light">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone slate-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#edf0f4;"></div>
+    <div class="swatch" style="background:#c9d8e8;"></div>
+    <div class="swatch" style="background:#2d5a7a;"></div>
+    <div class="swatch" style="background:#3a6e96;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#13181e;"></div>
+    <div class="swatch" style="background:#d8e4ee;"></div>
+    <div class="swatch" style="background:#2d5a7a;"></div>
+    <div class="swatch" style="background:#5b9bc8;"></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── THEME 3: AMBER / WALNUT ──────── -->
+<section class="theme-section">
+  <div class="theme-label">03</div>
+  <div class="theme-name">Walnut</div>
+  <div class="theme-desc">Warm ivory light mode · deep brown dark · burnt amber accent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone amber-light">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone amber-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#f5ede0;"></div>
+    <div class="swatch" style="background:#e8c99a;"></div>
+    <div class="swatch" style="background:#6b4226;"></div>
+    <div class="swatch" style="background:#c07840;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#1a1410;"></div>
+    <div class="swatch" style="background:#e8d0a0;"></div>
+    <div class="swatch" style="background:#6b4226;"></div>
+    <div class="swatch" style="background:#d48a50;"></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── THEME 4: PLUM / DUSK ──────────── -->
+<section class="theme-section">
+  <div class="theme-label">04</div>
+  <div class="theme-name">Dusk</div>
+  <div class="theme-desc">Lavender tinted light mode · deep indigo dark · dusty plum accent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone plum-light">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone plum-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#f0ecf5;"></div>
+    <div class="swatch" style="background:#d8cce8;"></div>
+    <div class="swatch" style="background:#5a3d78;"></div>
+    <div class="swatch" style="background:#7a5298;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#160f1e;"></div>
+    <div class="swatch" style="background:#ddd0f0;"></div>
+    <div class="swatch" style="background:#5a3d78;"></div>
+    <div class="swatch" style="background:#9b70cc;"></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── THEME 5: STONE / ASH ──────────── -->
+<section class="theme-section">
+  <div class="theme-label">05</div>
+  <div class="theme-name">Stone</div>
+  <div class="theme-desc">Neutral warm grey · dark charcoal squares · understated graphite accent</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone stone-light">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone stone-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#efefed;"></div>
+    <div class="swatch" style="background:#d0cfc8;"></div>
+    <div class="swatch" style="background:#4a4e52;"></div>
+    <div class="swatch" style="background:#4a4e52;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#181818;"></div>
+    <div class="swatch" style="background:#e0dfda;"></div>
+    <div class="swatch" style="background:#4a4e52;"></div>
+    <div class="swatch" style="background:#8a9098;"></div>
+  </div>
+</section>
+
+<!-- ───────────────────────── THEME 6: MOSS / TEA ────────────── -->
+<section class="theme-section">
+  <div class="theme-label">06</div>
+  <div class="theme-name">Moss</div>
+  <div class="theme-desc">Fresh sage light mode · deep pine dark · soft celadon green accent — similar to Forest but airier and cooler-toned</div>
+  <div class="phones">
+    <div class="phone-wrap">
+      <span class="mode-label">Light</span>
+      <div class="phone moss-light">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-wrap">
+      <span class="mode-label">Dark</span>
+      <div class="phone moss-dark">
+        <div class="phone-screen">
+          <div class="board">
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark hl-prev-from"></div><div class="sq board-light hl-prev-to"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light hl-suggest-from"></div><div class="sq board-dark hl-suggest-to"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+            <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
+            <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
+          </div>
+          <div class="status-row"></div>
+          <div class="drawer">
+            <div class="drag-bar-row"><div class="drag-bar"></div></div>
+            <div class="peek">
+              <div class="btn"><div class="btn-icon">⊕</div>New</div>
+              <div class="btn"><div class="btn-icon">↩</div>Undo</div>
+              <div class="btn"><div class="btn-icon">✦</div>Hint</div>
+              <div class="btn"><div class="btn-icon">◁</div>Prev</div>
+            </div>
+            <div class="expanded">
+              <div class="exp-row">
+                <div class="chip chip-active">Difficulty · 10</div>
+              </div>
+              <div class="exp-row">
+                <div class="chip chip-active">Color · White</div>
+                <div class="chip chip-inactive">History</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="swatches">
+    <div class="swatch" style="background:#eef2ec;"></div>
+    <div class="swatch" style="background:#cdd9c0;"></div>
+    <div class="swatch" style="background:#587060;"></div>
+    <div class="swatch" style="background:#587060;"></div>
+    <div class="divider"></div>
+    <div class="swatch" style="background:#141a14;"></div>
+    <div class="swatch" style="background:#dce8d0;"></div>
+    <div class="swatch" style="background:#587060;"></div>
+    <div class="swatch" style="background:#80b880;"></div>
+  </div>
+</section>
+
+</body>
+</html>

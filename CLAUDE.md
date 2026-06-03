@@ -21,9 +21,9 @@ The app is a single-page chess PWA. All logic lives in `src/`:
 
 ```
 App.tsx                        — root; wires useGame → Game + Drawer
-theme.ts                       — design token object (colors); imported by all styled-components
 hooks/useGame.ts               — all game state, move logic, API calls, localStorage persistence
 hooks/useDrawer.ts             — drawer open/close state and sub-mode (difficulty / color / history)
+hooks/useTheme.ts              — React hook for reading/setting the active theme (wraps util/themes.ts)
 context/PiecesContext.tsx      — provides react-chessboard piece renderers via context (avoids prop drilling)
 components/Game.tsx            — chessboard rendering, board reset slide animation
 components/Drawer.tsx          — high-level drawer: owns useDrawer, peek content switching, expanded content
@@ -39,6 +39,7 @@ components/ResetBubbleArea / ResetBubble — mobile hold-to-reset interaction (u
 components/CheckIndicator      — animated pill showing Check / Checkmate / Stalemate / Draw
 components/Spinner             — shows while waiting for AI move
 util/chessAPI.ts               — axios instance pointing at VITE_CHESS_API_BASE_URL
+util/themes.ts                 — theme names (THEMES, Theme type), applyTheme, setTheme, getSavedTheme
 ```
 
 ### State flow
@@ -109,4 +110,12 @@ Tapping a settings button in the expanded panel calls `enterSubMode('difficulty'
 
 ## Design philosophy
 
-The intended feel is a casual coffee-shop chess game — unhurried, visually calm. Prioritize smooth animations and clean aesthetics over feature density. Background color is `#1e2a1e` (dark green). All interactive chess UI is white on dark. Design tokens live in `theme.ts`; import `theme` from there rather than hardcoding color values.
+The intended feel is a casual coffee-shop chess game — unhurried, visually calm. Prioritize smooth animations and clean aesthetics over feature density.
+
+### Color system
+
+All color tokens are CSS custom properties defined in `index.css`. Never hardcode color values — always use the `var(--color-*)` tokens.
+
+Six themes are available: **Forest** (default), Slate, Walnut, Dusk, Stone, Moss. Each theme defines its own light-mode token values via `[data-theme="name"]` on `<html>`, and a `@media (prefers-color-scheme: dark)` block inside that selector for dark mode. Forest is the `:root` default (no attribute needed).
+
+To switch themes programmatically, use `setTheme(name)` from `util/themes.ts` (persists to `localStorage`) or `useTheme()` from `hooks/useTheme.ts` (React state + persistence). The saved theme is applied synchronously in `main.tsx` before the first render to avoid a flash.

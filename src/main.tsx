@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { PiecesProvider } from './context/PiecesContext.tsx'
+import { applyTheme, getSavedTheme } from './util/themes.ts'
+
+applyTheme(getSavedTheme())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
