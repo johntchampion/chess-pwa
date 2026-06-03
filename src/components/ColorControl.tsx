@@ -21,15 +21,21 @@ const Container = styled.div`
 const ColorButton = styled.button<{ $active: boolean }>`
   flex: 1;
   height: 2.5rem;
-  border: 2px solid ${({ $active }) => ($active ? theme.chipActiveBorder : 'transparent')};
+  border: 2px solid
+    ${({ $active }) => ($active ? theme.chipActiveBorder : 'transparent')};
   border-radius: 1.25rem;
-  background-color: ${({ $active }) => ($active ? theme.chipActiveBg : theme.chipInactiveBg)};
-  color: ${({ $active }) => ($active ? theme.chipActiveText : theme.chipInactiveText)};
+  background-color: ${({ $active }) =>
+    $active ? theme.chipActiveBg : theme.chipInactiveBg};
+  color: ${({ $active }) =>
+    $active ? theme.chipActiveText : theme.chipInactiveText};
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
-  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 
   &:active {
     opacity: 0.7;
@@ -55,9 +61,18 @@ const DoneButton = styled.button`
 
 const ColorControl = ({ selected, onChange, onDone }: ColorControlProps) => (
   <Container>
-    <ColorButton $active={selected === 'w'} onClick={() => onChange('w')}>White</ColorButton>
-    <ColorButton $active={selected === 'b'} onClick={() => onChange('b')}>Black</ColorButton>
-    <ColorButton $active={selected === 'random'} onClick={() => onChange('random')}>Rnd</ColorButton>
+    <ColorButton $active={selected === 'w'} onClick={() => onChange('w')}>
+      White
+    </ColorButton>
+    <ColorButton $active={selected === 'b'} onClick={() => onChange('b')}>
+      Black
+    </ColorButton>
+    <ColorButton
+      $active={selected === 'random'}
+      onClick={() => onChange('random')}
+    >
+      Random
+    </ColorButton>
     <DoneButton onClick={onDone}>Done</DoneButton>
   </Container>
 )

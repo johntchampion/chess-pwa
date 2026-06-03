@@ -53,7 +53,9 @@ const Drawer = ({
   const [pendingColor, setPendingColor] = useState<ColorChoice>(preferredColor)
 
   const handleColorDone = () => {
-    resetWithColor(pendingColor)
+    if (pendingColor !== preferredColor) {
+      resetWithColor(pendingColor)
+    }
     exitSubMode()
   }
 
