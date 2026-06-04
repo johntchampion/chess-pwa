@@ -107,10 +107,10 @@ const Drawer = ({
     }
     return (
       <DrawerQuickBar
-        onNewGame={resetGameHandler}
-        onUndo={undoMoveHandler}
-        onSuggest={suggestMoveHandler}
-        onShowPrev={showPreviousMoveHandler}
+        onNewGame={() => { closeDrawer(); resetGameHandler() }}
+        onUndo={() => { closeDrawer(); undoMoveHandler() }}
+        onSuggest={() => { closeDrawer(); suggestMoveHandler() }}
+        onShowPrev={() => { closeDrawer(); showPreviousMoveHandler() }}
         isSuggestLoading={isSuggestLoading}
         isPrevLoading={isPrevLoading}
       />

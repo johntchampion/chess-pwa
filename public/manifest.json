@@ -8,18 +8,18 @@
       "type": "image/x-icon"
     },
     {
-      "src": "icon512.png",
+      "src": "icons/iconForest192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "icon512.png",
+      "src": "icons/iconForest512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#f5f0e6",
+  "theme_color": "#fdfbf7",
   "background_color": "#f5f0e6"
 }

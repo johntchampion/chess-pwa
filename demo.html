@@ -79,7 +79,7 @@
   /* ── phone shell ──────────────────────────────────────── */
   .phone {
     width: 220px;
-    height: 420px;
+    height: 460px;
     border-radius: 28px;
     overflow: hidden;
     position: relative;
@@ -459,9 +459,40 @@
   .moss-dark .chip-inactive { background: #181e18; color: #405840; }
   .moss-dark .text-primary  { color: #d8ead4; }
   .moss-dark .text-accent   { color: #80b880; }
+
+  /* ── app icon CSS vars per theme ────────────────────────── */
+  .forest-light { --icon-bg: #5a7a5a; --icon-fg: #ffffff; }
+  .forest-dark  { --icon-bg: #7ab87a; --icon-fg: #141d14; }
+  .slate-light  { --icon-bg: #3a6e96; --icon-fg: #ffffff; }
+  .slate-dark   { --icon-bg: #5b9bc8; --icon-fg: #08141e; }
+  .amber-light  { --icon-bg: #c07840; --icon-fg: #ffffff; }
+  .amber-dark   { --icon-bg: #d48a50; --icon-fg: #180c04; }
+  .plum-light   { --icon-bg: #7a5298; --icon-fg: #ffffff; }
+  .plum-dark    { --icon-bg: #9b70cc; --icon-fg: #0c0618; }
+  .stone-light  { --icon-bg: #4a4e52; --icon-fg: #ffffff; }
+  .stone-dark   { --icon-bg: #8a9098; --icon-fg: #0e0e0e; }
+  .moss-light   { --icon-bg: #587060; --icon-fg: #ffffff; }
+  .moss-dark    { --icon-bg: #80b880; --icon-fg: #0a1208; }
+
+  /* ── phone header row ───────────────────────────────────── */
+  .phone-header {
+    width: 176px;
+    display: flex;
+    align-items: center;
+    padding-bottom: 6px;
+  }
 </style>
 </head>
 <body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden">
+  <defs>
+    <linearGradient id="icon-gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.10)"/>
+    </linearGradient>
+  </defs>
+</svg>
 
 <h1>Chess PWA — Color Schemes</h1>
 <p class="subtitle">Each card is a mock of the mobile UI (board + bottom drawer). Light and dark variants shown side-by-side.</p>
@@ -476,6 +507,18 @@
       <span class="mode-label">Light</span>
       <div class="phone forest-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board"><!-- 64 squares -->
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -513,6 +556,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone forest-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -571,6 +626,18 @@
       <span class="mode-label">Light</span>
       <div class="phone slate-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -607,6 +674,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone slate-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -663,6 +742,18 @@
       <span class="mode-label">Light</span>
       <div class="phone amber-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -699,6 +790,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone amber-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -755,6 +858,18 @@
       <span class="mode-label">Light</span>
       <div class="phone plum-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -791,6 +906,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone plum-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -847,6 +974,18 @@
       <span class="mode-label">Light</span>
       <div class="phone stone-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -883,6 +1022,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone stone-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -939,6 +1090,18 @@
       <span class="mode-label">Light</span>
       <div class="phone moss-light">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
@@ -975,6 +1138,18 @@
       <span class="mode-label">Dark</span>
       <div class="phone moss-dark">
         <div class="phone-screen">
+          <div class="phone-header">
+            <svg width="36" height="36" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+              <rect width="60" height="60" rx="13.4" fill="var(--icon-bg)"/>
+              <rect width="60" height="60" rx="13.4" fill="url(#icon-gloss)"/>
+              <rect x="1" y="1" width="58" height="58" rx="12.6" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+              <rect x="27" y="9"  width="6"  height="20" rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="15" width="20" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="17" y="27" width="26" height="6"  rx="3"   fill="var(--icon-fg)"/>
+              <rect x="20" y="33" width="20" height="12" rx="1.5" fill="var(--icon-fg)"/>
+              <rect x="12" y="44" width="36" height="9"  rx="4.5" fill="var(--icon-fg)"/>
+            </svg>
+          </div>
           <div class="board">
             <div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div>
             <div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div><div class="sq board-dark"></div><div class="sq board-light"></div>
