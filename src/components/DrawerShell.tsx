@@ -40,7 +40,7 @@ const DrawerContainer = styled(animated.div)`
   border-top: 1px solid var(--color-drawer-border);
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
   touch-action: none;
   user-select: none;
   z-index: 5;
