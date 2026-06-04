@@ -1,6 +1,14 @@
+import styled from 'styled-components'
 import useGame from './hooks/useGame'
 import Game from './components/Game'
 import Drawer from './components/Drawer'
+
+const AppShell = styled.div`
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-app-bg);
+`
 
 function App() {
   const {
@@ -44,7 +52,7 @@ function App() {
   } = useGame()
 
   return (
-    <div className='relative'>
+    <AppShell>
       <Game
         game={game}
         oldGameState={oldGameState}
@@ -86,7 +94,7 @@ function App() {
         isSuggestLoading={isSuggestLoading}
         isPrevLoading={isPrevLoading}
       />
-    </div>
+    </AppShell>
   )
 }
 
