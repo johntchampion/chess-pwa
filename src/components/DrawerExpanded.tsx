@@ -74,6 +74,10 @@ const DrawerExpanded = ({
   capturedByBlack,
 }: DrawerExpandedProps) => (
   <Container>
+    <SettingButton onClick={onChangeTheme}>
+      Change Theme
+      <ValueLabel>{THEME_LABELS[theme]}</ValueLabel>
+    </SettingButton>
     <SettingButton onClick={onChangeDifficulty}>
       Change Difficulty
       <ValueLabel>{difficulty}</ValueLabel>
@@ -89,10 +93,6 @@ const DrawerExpanded = ({
           ? 'No moves'
           : `${historyLength} move${historyLength === 1 ? '' : 's'}`}
       </ValueLabel>
-    </SettingButton>
-    <SettingButton onClick={onChangeTheme}>
-      Change Theme
-      <ValueLabel>{THEME_LABELS[theme]}</ValueLabel>
     </SettingButton>
     <CapturedPieces
       capturedByWhite={capturedByWhite}
