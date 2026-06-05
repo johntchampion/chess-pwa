@@ -1,7 +1,14 @@
+import styled from 'styled-components'
 import useGame from './hooks/useGame'
 import Game from './components/Game'
-import ResetBubbleArea from './components/ResetBubbleArea'
-import Toolbar from './components/Toolbar'
+import Drawer from './components/Drawer'
+
+const AppShell = styled.div`
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--color-app-bg);
+`
 
 function App() {
   const {
@@ -19,7 +26,25 @@ function App() {
     opponentStalemate,
     playerStalemate,
     isDrawGame,
+    preview,
+    isSuggestLoading,
+    isPrevLoading,
+    difficulty,
+    setDifficulty,
+    preferredColor,
+    historyIndex,
+    historyLength,
+    historyDisplayFen,
+    capturedByWhite,
+    capturedByBlack,
+    enterHistoryView,
+    exitHistoryView,
+    setHistoryIndex,
     resetGameHandler,
+    resetWithColor,
+    undoMoveHandler,
+    suggestMoveHandler,
+    showPreviousMoveHandler,
     pieceDroppedHandler,
     pieceDragHandler,
     squareTappedHandler,
@@ -27,7 +52,7 @@ function App() {
   } = useGame()
 
   return (
-    <div className='relative'>
+    <AppShell>
       <Game
         game={game}
         oldGameState={oldGameState}
@@ -43,14 +68,33 @@ function App() {
         opponentStalemate={opponentStalemate}
         playerStalemate={playerStalemate}
         isDrawGame={isDrawGame}
+        preview={preview}
+        historyDisplayFen={historyDisplayFen}
         pieceDroppedHandler={pieceDroppedHandler}
         pieceDragHandler={pieceDragHandler}
         squareTappedHandler={squareTappedHandler}
         canDragPieceHandler={canDragPieceHandler}
       />
-      <ResetBubbleArea onBubblePopped={resetGameHandler} />
-      <Toolbar resetGameHandler={resetGameHandler} />
-    </div>
+      <Drawer
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        preferredColor={preferredColor}
+        historyLength={historyLength}
+        historyIndex={historyIndex}
+        capturedByWhite={capturedByWhite}
+        capturedByBlack={capturedByBlack}
+        enterHistoryView={enterHistoryView}
+        exitHistoryView={exitHistoryView}
+        setHistoryIndex={setHistoryIndex}
+        resetGameHandler={resetGameHandler}
+        resetWithColor={resetWithColor}
+        undoMoveHandler={undoMoveHandler}
+        suggestMoveHandler={suggestMoveHandler}
+        showPreviousMoveHandler={showPreviousMoveHandler}
+        isSuggestLoading={isSuggestLoading}
+        isPrevLoading={isPrevLoading}
+      />
+    </AppShell>
   )
 }
 

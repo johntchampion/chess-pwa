@@ -5,6 +5,8 @@ import type { Chess, Move, Square, Color } from 'chess.js';
 import type { PieceDropHandlerArgs, PieceHandlerArgs, SquareHandlerArgs } from 'react-chessboard';
 import Spinner from './Spinner';
 import CheckIndicator from './CheckIndicator';
+import type { PreviewState } from '../hooks/useGame';
+import { usePieces } from '../context/PiecesContext';
 
 interface OldGameState {
     fen: string;
@@ -30,13 +32,17 @@ interface GameProps {
     isDrawGame: boolean;
     squareTappedHandler: (args: SquareHandlerArgs) => void;
     canDragPieceHandler: (args: PieceHandlerArgs) => boolean;
+    /** Temporary board position for animated suggest-move / prev-move previews. */
+    preview?: PreviewState;
+    /** FEN to display when scrubbing through game history; overrides the live board position. */
+    historyDisplayFen?: string;
 }
 
 const GameContainer = styled.div`
 display: grid;
 grid-template-rows: 2.5rem auto 2.5rem;
 margin: auto;
-margin-top: 3rem;
+margin-top: calc(3rem + env(safe-area-inset-top));
 width: 100%;
 overflow: hidden;
 max-width: 40rem;
@@ -48,7 +54,7 @@ position: relative;
 `;
 
 const InfoContainer = styled.div`
-color: white;
+color: var(--color-text-primary);
 padding: 8px;
 display: flex;
 flex-direction: row;
@@ -117,9 +123,14 @@ const Game = ({
     isDrawGame,
     squareTappedHandler,
     canDragPieceHandler,
+    preview,
+    historyDisplayFen,
 }: GameProps) => {
 
+    const pieces = usePieces();
     const squareStyles: Record<string, CSSProperties> = {};
+
+    // Legal-move dots for the focused piece.
     focusedSquareLegalMoves.forEach(m => {
         const targetPiece = game?.get(m.to);
         const sourcePiece = focusedSquare ? game?.get(focusedSquare) : undefined;
@@ -130,10 +141,10 @@ const Game = ({
             borderRadius: '50%'
         };
     });
+
+    // Focused-square highlight always renders on top.
     if (focusedSquare) {
-        squareStyles[focusedSquare] = {
-            background: 'rgba(255, 255, 0, 0.4)'
-        };
+        squareStyles[focusedSquare] = { background: 'var(--color-hl-focus)' };
     }
 
     // Build the board array. During a reset, the resigned game board is prepended
@@ -145,14 +156,17 @@ const Game = ({
                 <Chessboard
                     options={{
                         id: 'chessboard',
+                        pieces,
                         boardOrientation: playerColorFull,
-                        position: game.fen(),
+                        position: preview?.fen ?? historyDisplayFen ?? game.fen(),
                         onPieceDrop: pieceDroppedHandler,
                         onPieceDrag: pieceDragHandler,
                         onSquareClick: squareTappedHandler,
                         squareStyles,
-                        animationDurationInMs: game.history().length === 0 ? 0 : 300,
+                        animationDurationInMs: (preview && !preview.animate) ? 0 : (game.history().length === 0 ? 0 : 300),
                         canDragPiece: canDragPieceHandler,
+                        lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
+                        darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
                     }}
                 />
             </ChessboardCell>
@@ -166,6 +180,8 @@ const Game = ({
                         boardOrientation: oldGameState.color,
                         position: oldGameState.fen,
                         animationDurationInMs: 0,
+                        lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
+                        darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
                     }}
                 />
             </ChessboardCell>
