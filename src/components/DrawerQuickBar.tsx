@@ -7,6 +7,8 @@ interface DrawerQuickBarProps {
   onShowPrev: () => void
   isSuggestLoading: boolean
   isPrevLoading: boolean
+  onMore?: () => void
+  isMoreActive?: boolean
 }
 
 const Container = styled.div`
@@ -79,6 +81,36 @@ const BtnLabel = styled.span`
   opacity: 0.65;
 `
 
+const MoreBtn = styled(Btn)<{ $isActive?: boolean }>`
+  display: none;
+
+  @media (min-width: 40rem) {
+    display: flex;
+    opacity: ${({ $isActive }) => ($isActive ? 1 : 0.75)};
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+`
+
+const MoreIcon = () => (
+  <svg
+    width='20'
+    height='20'
+    viewBox='0 0 20 20'
+    fill='none'
+    stroke='currentColor'
+    strokeWidth='1.75'
+    strokeLinecap='round'
+  >
+    <line x1='3' y1='6.5' x2='17' y2='6.5' />
+    <circle cx='7.5' cy='6.5' r='2.25' />
+    <line x1='3' y1='13.5' x2='17' y2='13.5' />
+    <circle cx='12.5' cy='13.5' r='2.25' />
+  </svg>
+)
+
 const RefreshIcon = () => (
   <svg
     width='20'
@@ -149,6 +181,8 @@ const DrawerQuickBar = ({
   onShowPrev,
   isSuggestLoading,
   isPrevLoading,
+  onMore,
+  isMoreActive,
 }: DrawerQuickBarProps) => (
   <Container>
     <Btn onClick={onNewGame}>
@@ -167,6 +201,10 @@ const DrawerQuickBar = ({
       {isPrevLoading ? <BtnSpinner /> : <PrevIcon />}
       <BtnLabel>Prev</BtnLabel>
     </Btn>
+    <MoreBtn onClick={onMore} $isActive={isMoreActive}>
+      <MoreIcon />
+      <BtnLabel>More</BtnLabel>
+    </MoreBtn>
   </Container>
 )
 

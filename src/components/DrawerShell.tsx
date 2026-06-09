@@ -46,6 +46,24 @@ const DrawerContainer = styled(animated.div)`
   z-index: 5;
   /* Clips the spring-height animation and any expanded-content overflow. */
   overflow: hidden;
+
+  @media (min-width: 40rem) {
+    /* Pull out of fixed positioning; AppShell flex column places it below the board. */
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    width: min(40rem, 100%);
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-drawer-border);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
+    overflow: visible;
+    /* Disable the spring-height animation; toolbar is always just peek height. */
+    height: auto !important;
+    /* Sit above the click-outside backdrop. */
+    z-index: 10;
+  }
 `
 
 const DragBar = styled.div`
@@ -55,6 +73,10 @@ const DragBar = styled.div`
   height: 6px;
   border-radius: 3px;
   background-color: var(--color-drag-handle);
+
+  @media (min-width: 40rem) {
+    display: none;
+  }
 `
 
 const PeekStrip = styled.div<{ $height: number }>`
@@ -72,6 +94,37 @@ const PeekFillDiv = styled(animated.div)`
   left: 0;
   display: flex;
   align-items: center;
+`
+
+const Backdrop = styled.div`
+  display: none;
+
+  @media (min-width: 40rem) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+  }
+`
+
+const ExpandedWrapper = styled.div<{ $isOpen: boolean }>`
+  @media (min-width: 40rem) {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: var(--color-drawer-bg);
+    border: 1px solid var(--color-drawer-border);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+    transform: ${({ $isOpen }) => ($isOpen ? 'translateY(0)' : 'translateY(6px)')};
+    pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    cursor: default;
+  }
 `
 
 // Mounts fresh (and fades in) whenever its `key` changes.
@@ -108,11 +161,13 @@ const DrawerShell = ({
   const bind = useDrag(
     ({ last, movement: [, dy] }) => {
       if (last) {
-        // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
-        if (dy <= 0) onOpen()
-        else onClose()
+        if (Math.abs(dy) > 4) {
+          // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
+          if (dy < 0) onOpen()
+          else onClose()
+          hasDragged.current = true
+        }
         setDragOffset(0)
-        if (Math.abs(dy) > 4) hasDragged.current = true
       } else {
         setDragOffset(-dy)
       }
@@ -126,31 +181,34 @@ const DrawerShell = ({
   })
 
   return (
-    <DrawerContainer
-      style={{ height: springStyles.height }}
-      onPointerDownCapture={() => {
-        hasDragged.current = false
-      }}
-      onMouseDown={(e) => {
-        const target = e.target as HTMLInputElement
-        if (target.tagName !== 'INPUT' || target.type !== 'range')
-          e.preventDefault()
-      }}
-      onClickCapture={(e) => {
-        if (hasDragged.current) {
+    <>
+      {isOpen && <Backdrop onClick={onClose} />}
+      <DrawerContainer
+        style={{ height: springStyles.height }}
+        onPointerDownCapture={() => {
           hasDragged.current = false
-          e.stopPropagation()
-        }
-      }}
-      {...bind()}
-    >
+        }}
+        onMouseDown={(e) => {
+          const target = e.target as HTMLInputElement
+          if (target.tagName !== 'INPUT' || target.type !== 'range')
+            e.preventDefault()
+        }}
+        onClickCapture={(e) => {
+          if (hasDragged.current) {
+            hasDragged.current = false
+            e.stopPropagation()
+          }
+        }}
+        {...bind()}
+      >
       <DragBar />
       <PeekStrip $height={peekHeight}>
         {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
         <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
       </PeekStrip>
-      {expandedContent}
+      <ExpandedWrapper $isOpen={isOpen}>{expandedContent}</ExpandedWrapper>
     </DrawerContainer>
+    </>
   )
 }
 
