@@ -54,7 +54,7 @@ const DrawerContainer = styled(animated.div)`
     right: auto;
     bottom: auto;
     transform: none;
-    width: min(40rem, 100%);
+    width: min(28rem, 100%);
     border-radius: 0.75rem;
     border: 1px solid var(--color-drawer-border);
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
@@ -83,6 +83,10 @@ const PeekStrip = styled.div<{ $height: number }>`
   position: relative;
   height: ${({ $height }) => $height}px;
   overflow: hidden;
+
+  @media (min-width: 40rem) {
+    height: 72px;
+  }
 `
 
 // Fills the PeekStrip absolutely so content always covers edge-to-edge.
@@ -110,20 +114,36 @@ const Backdrop = styled.div`
 const ExpandedWrapper = styled.div<{ $isOpen: boolean }>`
   @media (min-width: 40rem) {
     position: absolute;
-    bottom: 100%;
-    left: 0;
+    bottom: calc(100% + 0.5rem);
     right: 0;
-    margin-bottom: 0.5rem;
+    left: auto;
+    width: 18rem;
     border-radius: 0.75rem;
-    overflow: hidden;
     background-color: var(--color-drawer-bg);
     border: 1px solid var(--color-drawer-border);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
     opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-    transform: ${({ $isOpen }) => ($isOpen ? 'translateY(0)' : 'translateY(6px)')};
+    transform: ${({ $isOpen }) =>
+      $isOpen ? 'translateY(0)' : 'translateY(4px)'};
     pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
     cursor: default;
+
+    /* Caret pointing down toward the More button (rightmost 1/5 of toolbar). */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: calc(10% - 5px);
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-drawer-bg);
+      border-right: 1px solid var(--color-drawer-border);
+      border-bottom: 1px solid var(--color-drawer-border);
+      transform: rotate(45deg);
+    }
   }
 `
 
@@ -201,13 +221,13 @@ const DrawerShell = ({
         }}
         {...bind()}
       >
-      <DragBar />
-      <PeekStrip $height={peekHeight}>
-        {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
-        <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
-      </PeekStrip>
-      <ExpandedWrapper $isOpen={isOpen}>{expandedContent}</ExpandedWrapper>
-    </DrawerContainer>
+        <DragBar />
+        <PeekStrip $height={peekHeight}>
+          {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
+          <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
+        </PeekStrip>
+        <ExpandedWrapper $isOpen={isOpen}>{expandedContent}</ExpandedWrapper>
+      </DrawerContainer>
     </>
   )
 }
