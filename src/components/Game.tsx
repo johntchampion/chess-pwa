@@ -42,9 +42,10 @@ interface GameProps {
   historyDisplayFen?: string
 }
 
-const CHESSBOARD_STYLE = {
+const CHESSBOARD_STYLE: CSSProperties = {
   borderRadius: 'var(--chessboard-border-radius)',
   boxShadow: 'var(--chessboard-box-shadow)',
+  transition: 'border-radius 0.5s ease, box-shadow 0.5s ease',
 }
 
 const GameContainer = styled.div`
