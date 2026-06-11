@@ -42,51 +42,68 @@ interface GameProps {
   historyDisplayFen?: string
 }
 
-const GameContainer = styled.div`
-  display: grid;
-  grid-template-rows: 2.5rem auto 2.5rem;
-  margin: auto;
-  margin-top: calc(3rem + env(safe-area-inset-top));
-  width: 100%;
-  overflow: hidden;
-  max-width: 40rem;
-  position: relative;
+const CHESSBOARD_STYLE = {
+  borderRadius: 'var(--chessboard-border-radius)',
+  boxShadow: 'var(--chessboard-box-shadow)',
+}
 
-  @media (min-width: 40rem) {
-    grid-template-rows: 3rem auto 3rem;
-  }
+const GameContainer = styled.div`
+  margin-top: calc(3rem + env(safe-area-inset-top));
+  position: relative;
 `
 
 const InfoContainer = styled.div`
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
   color: var(--color-text-primary);
+  height: 2.5rem;
   padding: 8px;
+  margin: auto;
+  max-width: 40rem;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`
 
-const OpponentInfo = styled(InfoContainer)``
-const PlayerInfo = styled(InfoContainer)``
+  @media (min-width: 40rem) {
+    padding: 8px 8px 0 8px;
+    height: 3rem;
+  }
+`
 
 // Outer viewport — clips the sliding animation to one board width.
 const ChessboardViewport = styled.div`
+  display: inline-block;
   width: 100vw;
   overflow: hidden;
   aspect-ratio: 1 / 1;
+  margin: auto;
 
   @media (min-width: 40rem) {
-    width: 40rem;
+    width: 42rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 `
 
 // Per-board cell — gives react-chessboard v5 a sized container to fill.
 const ChessboardCell = styled.div`
+  --chessboard-border-radius: 0;
+  --chessboard-box-shadow: none;
+
   width: 100vw;
   aspect-ratio: 1 / 1;
   flex-shrink: 0;
 
   @media (min-width: 40rem) {
-    width: 40rem;
+    width: 42rem;
+    height: 42rem;
+    padding: 1rem;
+
+    --chessboard-border-radius: 12px;
+    --chessboard-box-shadow: 0 2px 16px rgb(0, 0, 0, 0.5);
   }
 `
 
@@ -108,9 +125,9 @@ const ChessboardContainer = styled.div<{ $isResettingBoard: boolean }>`
 
   @media (min-width: 40rem) {
     width: ${({ $isResettingBoard }) =>
-      $isResettingBoard ? 'calc(80rem + 2rem)' : 'initial'};
+      $isResettingBoard ? 'calc(84rem + 2rem)' : 'initial'};
     transform: ${({ $isResettingBoard }) =>
-      $isResettingBoard ? 'translateX(calc(-40rem - 2rem))' : 'initial'};
+      $isResettingBoard ? 'translateX(calc(-42rem - 2rem))' : 'initial'};
   }
 `
 
@@ -182,6 +199,7 @@ const Game = ({
             canDragPiece: canDragPieceHandler,
             lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
             darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
+            boardStyle: CHESSBOARD_STYLE,
           }}
         />
       </ChessboardCell>,
@@ -197,6 +215,7 @@ const Game = ({
             animationDurationInMs: 0,
             lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
             darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
+            boardStyle: CHESSBOARD_STYLE,
           }}
         />
       </ChessboardCell>,
@@ -205,30 +224,22 @@ const Game = ({
 
   return (
     <GameContainer>
-      <OpponentInfo>
+      <InfoContainer>
         <CheckIndicator
-          check={opponentCheck}
-          checkmate={opponentCheckmate}
-          stalemate={opponentStalemate}
+          check={opponentCheck || playerCheck}
+          checkmate={opponentCheckmate || playerCheckmate}
+          stalemate={opponentStalemate || playerStalemate}
           draw={isDrawGame}
         />
         <Spinner
           hidden={!game || game.turn() === playerColor || game.isGameOver()}
         />
-      </OpponentInfo>
+      </InfoContainer>
       <ChessboardViewport>
         <ChessboardContainer $isResettingBoard={isResettingBoard}>
           {chessBoards}
         </ChessboardContainer>
       </ChessboardViewport>
-      <PlayerInfo>
-        <CheckIndicator
-          check={playerCheck}
-          checkmate={playerCheckmate}
-          stalemate={playerStalemate}
-          draw={isDrawGame}
-        />
-      </PlayerInfo>
     </GameContainer>
   )
 }
