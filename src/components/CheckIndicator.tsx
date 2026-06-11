@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import styled from 'styled-components'
 
 interface CheckIndicatorProps {
@@ -39,20 +40,18 @@ const CheckIndicator = ({
   stalemate,
   draw,
 }: CheckIndicatorProps) => {
-  let text = 'Draw'
-  if (stalemate) {
-    text = 'Stalemate'
-  } else if (checkmate) {
-    text = 'Checkmate'
-  } else if (check) {
-    text = 'Check'
+  const lastTextRef = useRef('Check')
+
+  const showing = check || checkmate || stalemate || draw
+
+  if (showing) {
+    if (draw) lastTextRef.current = 'Draw'
+    if (check) lastTextRef.current = 'Check'
+    if (checkmate) lastTextRef.current = 'Checkmate'
+    if (stalemate) lastTextRef.current = 'Stalemate'
   }
 
-  return (
-    <Indicator $showing={check || checkmate || stalemate || draw}>
-      {text}
-    </Indicator>
-  )
+  return <Indicator $showing={showing}>{lastTextRef.current}</Indicator>
 }
 
 export default CheckIndicator
