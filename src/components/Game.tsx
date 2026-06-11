@@ -180,7 +180,7 @@ const Game = ({
   const chessBoards: React.ReactNode[] = []
   if (game) {
     chessBoards.push(
-      <ChessboardCell key='main'>
+      <ChessboardCell key='chessboard'>
         <Chessboard
           options={{
             id: 'chessboard',
@@ -208,9 +208,10 @@ const Game = ({
   }
   if (oldGameState) {
     chessBoards.unshift(
-      <ChessboardCell key='animated'>
+      <ChessboardCell key='old-chessboard-cell'>
         <Chessboard
           options={{
+            id: 'old-chessboard',
             boardOrientation: oldGameState.color,
             position: oldGameState.fen,
             animationDurationInMs: 0,
