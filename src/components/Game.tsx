@@ -198,9 +198,17 @@ const Game = ({
                   ? 0
                   : 300,
             canDragPiece: canDragPieceHandler,
+            draggingPieceStyle: {
+              animation: 'piece-pickup 120ms ease-out forwards',
+            },
+            dropSquareStyle: { boxShadow: 'inset 0px 0px 0px 2px black' },
             lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
             darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
             boardStyle: CHESSBOARD_STYLE,
+            squareStyle: {
+              WebkitTapHighlightColor: 'transparent',
+            },
+            showNotation: false,
           }}
         />
       </ChessboardCell>,
@@ -218,6 +226,7 @@ const Game = ({
             lightSquareStyle: { backgroundColor: 'var(--color-board-light)' },
             darkSquareStyle: { backgroundColor: 'var(--color-board-dark)' },
             boardStyle: CHESSBOARD_STYLE,
+            showNotation: false,
           }}
         />
       </ChessboardCell>,
