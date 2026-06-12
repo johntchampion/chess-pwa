@@ -242,6 +242,19 @@ const useGame = () => {
     setIsPrevLoading(false)
   }
 
+  const playFromHere = (targetIndex: number) => {
+    const moves = game.history({ verbose: true })
+    const movesToKeep = moves.slice(0, targetIndex)
+    const newGame = new Chess()
+    movesToKeep.forEach((m) =>
+      newGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
+    )
+    clearPreview()
+    setGame(newGame)
+    setHistoryIndex(null)
+    setFocusedSquare(undefined)
+  }
+
   const resetGameHandler = () => {
     setOldGameState({ fen: game.fen(), color: playerColorFull })
     clearPreview()
@@ -436,6 +449,7 @@ const useGame = () => {
     enterHistoryView,
     exitHistoryView,
     setHistoryIndex,
+    playFromHere,
     resetGameHandler,
     resetWithColor,
     undoMoveHandler,

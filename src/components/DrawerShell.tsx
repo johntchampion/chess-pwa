@@ -83,10 +83,6 @@ const PeekStrip = styled.div<{ $height: number }>`
   position: relative;
   height: ${({ $height }) => $height}px;
   overflow: hidden;
-
-  @media (min-width: 40rem) {
-    height: 72px;
-  }
 `
 
 // Fills the PeekStrip absolutely so content always covers edge-to-edge.

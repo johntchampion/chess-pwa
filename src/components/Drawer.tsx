@@ -21,6 +21,7 @@ interface DrawerProps {
   enterHistoryView: () => void
   exitHistoryView: () => void
   setHistoryIndex: (index: number) => void
+  playFromHere: (index: number) => void
   resetGameHandler: () => void
   resetWithColor: (color: ColorChoice) => void
   undoMoveHandler: () => void
@@ -41,6 +42,7 @@ const Drawer = ({
   enterHistoryView,
   exitHistoryView,
   setHistoryIndex,
+  playFromHere,
   resetGameHandler,
   resetWithColor,
   undoMoveHandler,
@@ -93,6 +95,10 @@ const Drawer = ({
           historyLength={historyLength}
           onChange={setHistoryIndex}
           onDone={handleHistoryDone}
+          onPlayFromHere={(index) => {
+            playFromHere(index)
+            exitSubMode()
+          }}
         />
       )
     }
@@ -140,6 +146,8 @@ const Drawer = ({
     />
   )
 
+  const peekHeight = mode === 'history' ? 120 : 72
+
   return (
     <DrawerShell
       isOpen={isOpen}
@@ -148,6 +156,7 @@ const Drawer = ({
       peekContent={peekContent}
       peekContentKey={mode}
       expandedContent={expandedContent}
+      peekHeight={peekHeight}
     />
   )
 }
