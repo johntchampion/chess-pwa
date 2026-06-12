@@ -51,6 +51,10 @@ const CHESSBOARD_STYLE: CSSProperties = {
 const GameContainer = styled.div`
   margin-top: calc(3rem + env(safe-area-inset-top));
   position: relative;
+
+  @media (min-width: 40rem) {
+    margin-top: 0;
+  }
 `
 
 const InfoContainer = styled.div`
@@ -82,10 +86,7 @@ const ChessboardViewport = styled.div`
   margin: auto;
 
   @media (min-width: 40rem) {
-    width: 42rem;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 44rem;
   }
 `
 
@@ -99,12 +100,12 @@ const ChessboardCell = styled.div`
   flex-shrink: 0;
 
   @media (min-width: 40rem) {
-    width: 42rem;
-    height: 42rem;
-    padding: 1rem;
+    width: 44rem;
+    height: 44rem;
+    padding: 2rem;
 
     --chessboard-border-radius: 12px;
-    --chessboard-box-shadow: 0 2px 16px rgb(0, 0, 0, 0.5);
+    --chessboard-box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
   }
 `
 
@@ -116,19 +117,19 @@ const ChessboardContainer = styled.div<{ $isResettingBoard: boolean }>`
   justify-content: flex-start;
   align-items: center;
   width: ${({ $isResettingBoard }) =>
-    $isResettingBoard ? 'calc(200vw + 2rem)' : 'initial'};
+    $isResettingBoard ? 'calc(200vw + 4rem)' : 'initial'};
   column-gap: ${({ $isResettingBoard }) =>
-    $isResettingBoard ? '2rem' : 'initial'};
+    $isResettingBoard ? '4rem' : 'initial'};
   transform: ${({ $isResettingBoard }) =>
-    $isResettingBoard ? 'translateX(calc(-100vw - 2rem))' : 'initial'};
+    $isResettingBoard ? 'translateX(calc(-100vw - 4rem))' : 'initial'};
   transition: ${({ $isResettingBoard }) =>
     $isResettingBoard ? 'transform 0.5s ease-in-out' : 'initial'};
 
   @media (min-width: 40rem) {
     width: ${({ $isResettingBoard }) =>
-      $isResettingBoard ? 'calc(84rem + 2rem)' : 'initial'};
+      $isResettingBoard ? 'calc(88rem + 4rem)' : 'initial'};
     transform: ${({ $isResettingBoard }) =>
-      $isResettingBoard ? 'translateX(calc(-42rem - 2rem))' : 'initial'};
+      $isResettingBoard ? 'translateX(calc(-44rem - 4rem))' : 'initial'};
   }
 `
 
