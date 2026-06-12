@@ -46,6 +46,24 @@ const DrawerContainer = styled(animated.div)`
   z-index: 5;
   /* Clips the spring-height animation and any expanded-content overflow. */
   overflow: hidden;
+
+  @media (min-width: 40rem) {
+    /* Pull out of fixed positioning; AppShell flex column places it below the board. */
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    width: min(28rem, 100%);
+    border-radius: 1.5rem;
+    border: 1px solid var(--color-drawer-border);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
+    overflow: visible;
+    /* Disable the spring-height animation; toolbar is always just peek height. */
+    height: auto !important;
+    /* Sit above the click-outside backdrop. */
+    z-index: 10;
+  }
 `
 
 const DragBar = styled.div`
@@ -55,12 +73,20 @@ const DragBar = styled.div`
   height: 6px;
   border-radius: 3px;
   background-color: var(--color-drag-handle);
+
+  @media (min-width: 40rem) {
+    display: none;
+  }
 `
 
 const PeekStrip = styled.div<{ $height: number }>`
   position: relative;
   height: ${({ $height }) => $height}px;
   overflow: hidden;
+
+  @media (min-width: 40rem) {
+    height: 72px;
+  }
 `
 
 // Fills the PeekStrip absolutely so content always covers edge-to-edge.
@@ -72,6 +98,53 @@ const PeekFillDiv = styled(animated.div)`
   left: 0;
   display: flex;
   align-items: center;
+`
+
+const Backdrop = styled.div`
+  display: none;
+
+  @media (min-width: 40rem) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+  }
+`
+
+const ExpandedWrapper = styled.div<{ $isOpen: boolean }>`
+  @media (min-width: 40rem) {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    left: auto;
+    width: 18rem;
+    border-radius: 0.75rem;
+    background-color: var(--color-drawer-bg);
+    border: 1px solid var(--color-drawer-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+    opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
+    transform: ${({ $isOpen }) =>
+      $isOpen ? 'translateY(0)' : 'translateY(4px)'};
+    pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+    cursor: default;
+
+    /* Caret pointing down toward the More button (rightmost 1/5 of toolbar). */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: calc(10% - 5px);
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-drawer-bg);
+      border-right: 1px solid var(--color-drawer-border);
+      border-bottom: 1px solid var(--color-drawer-border);
+      transform: rotate(45deg);
+    }
+  }
 `
 
 // Mounts fresh (and fades in) whenever its `key` changes.
@@ -108,11 +181,13 @@ const DrawerShell = ({
   const bind = useDrag(
     ({ last, movement: [, dy] }) => {
       if (last) {
-        // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
-        if (dy <= 0) onOpen()
-        else onClose()
+        if (Math.abs(dy) > 4) {
+          // dy < 0 = dragged upward = open; dy > 0 = dragged downward = close.
+          if (dy < 0) onOpen()
+          else onClose()
+          hasDragged.current = true
+        }
         setDragOffset(0)
-        if (Math.abs(dy) > 4) hasDragged.current = true
       } else {
         setDragOffset(-dy)
       }
@@ -126,31 +201,34 @@ const DrawerShell = ({
   })
 
   return (
-    <DrawerContainer
-      style={{ height: springStyles.height }}
-      onPointerDownCapture={() => {
-        hasDragged.current = false
-      }}
-      onMouseDown={(e) => {
-        const target = e.target as HTMLInputElement
-        if (target.tagName !== 'INPUT' || target.type !== 'range')
-          e.preventDefault()
-      }}
-      onClickCapture={(e) => {
-        if (hasDragged.current) {
+    <>
+      {isOpen && <Backdrop onClick={onClose} />}
+      <DrawerContainer
+        style={{ height: springStyles.height }}
+        onPointerDownCapture={() => {
           hasDragged.current = false
-          e.stopPropagation()
-        }
-      }}
-      {...bind()}
-    >
-      <DragBar />
-      <PeekStrip $height={peekHeight}>
-        {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
-        <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
-      </PeekStrip>
-      {expandedContent}
-    </DrawerContainer>
+        }}
+        onMouseDown={(e) => {
+          const target = e.target as HTMLInputElement
+          if (target.tagName !== 'INPUT' || target.type !== 'range')
+            e.preventDefault()
+        }}
+        onClickCapture={(e) => {
+          if (hasDragged.current) {
+            hasDragged.current = false
+            e.stopPropagation()
+          }
+        }}
+        {...bind()}
+      >
+        <DragBar />
+        <PeekStrip $height={peekHeight}>
+          {/* key forces a remount — and a fresh fade-in — whenever the mode changes */}
+          <PeekFade key={peekContentKey}>{peekContent}</PeekFade>
+        </PeekStrip>
+        <ExpandedWrapper $isOpen={isOpen}>{expandedContent}</ExpandedWrapper>
+      </DrawerContainer>
+    </>
   )
 }
 

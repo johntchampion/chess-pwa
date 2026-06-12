@@ -8,6 +8,15 @@ const AppShell = styled.div`
   height: 100%;
   overflow: hidden;
   background-color: var(--color-app-bg);
+
+  @media (min-width: 40rem) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-bottom: 8rem;
+  }
 `
 
 function App() {

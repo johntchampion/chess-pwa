@@ -113,6 +113,8 @@ const Drawer = ({
         onShowPrev={() => { closeDrawer(); showPreviousMoveHandler() }}
         isSuggestLoading={isSuggestLoading}
         isPrevLoading={isPrevLoading}
+        onMore={() => (isOpen ? closeDrawer() : openDrawer())}
+        isMoreActive={isOpen}
       />
     )
   })()
