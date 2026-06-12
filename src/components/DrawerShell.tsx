@@ -55,7 +55,7 @@ const DrawerContainer = styled(animated.div)`
     bottom: auto;
     transform: none;
     width: min(28rem, 100%);
-    border-radius: 0.75rem;
+    border-radius: 1.5rem;
     border: 1px solid var(--color-drawer-border);
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
     overflow: visible;
