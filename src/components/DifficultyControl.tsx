@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import Button from './Button'
 
 interface DifficultyControlProps {
   difficulty: number
@@ -28,35 +29,24 @@ const Slider = styled.input`
   cursor: pointer;
 `
 
-const DoneButton = styled.button`
-  color: var(--color-btn-text);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0 16px;
-  height: 2.75rem;
-  background-color: var(--color-btn-bg);
-  border: none;
-  cursor: pointer;
-  border-radius: 1.375rem;
-  white-space: nowrap;
-
-  &:active {
-    opacity: 0.5;
-  }
-`
-
-const DifficultyControl = ({ difficulty, onChange, onDone }: DifficultyControlProps) => (
+const DifficultyControl = ({
+  difficulty,
+  onChange,
+  onDone,
+}: DifficultyControlProps) => (
   <Container>
     <Label>Lvl {difficulty}</Label>
     <Slider
-      type="range"
+      type='range'
       min={0}
       max={20}
       value={difficulty}
       onChange={(e) => onChange(Number(e.target.value))}
       onPointerDown={(e) => e.stopPropagation()}
     />
-    <DoneButton onClick={onDone}>Done</DoneButton>
+    <Button $variant='secondary' onClick={onDone}>
+      Done
+    </Button>
   </Container>
 )
 

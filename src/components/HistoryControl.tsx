@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import Button from './Button'
 
 interface HistoryControlProps {
   historyIndex: number
@@ -43,29 +44,6 @@ const Slider = styled.input`
   cursor: pointer;
 `
 
-const ActionButton = styled.button<{ $flex?: number }>`
-  color: var(--color-btn-text);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0 14px;
-  height: 2.5rem;
-  background-color: var(--color-btn-bg);
-  border: none;
-  cursor: pointer;
-  border-radius: 1.25rem;
-  white-space: nowrap;
-  flex: ${({ $flex }) => $flex ?? 0};
-
-  &:active {
-    opacity: 0.5;
-  }
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: default;
-  }
-`
-
 const REPLAY_INTERVAL_MS = 700
 
 const HistoryControl = ({
@@ -92,16 +70,25 @@ const HistoryControl = ({
     onPlayFromHere(historyIndex)
   }
 
-  const label = historyIndex === 0 ? 'Start' : `${historyIndex}/${historyLength}`
-  const atEnd = historyIndex >= historyLength
+  const label =
+    historyIndex === 0 ? 'Start' : `${historyIndex}/${historyLength}`
   const atLivePosition = historyIndex === historyLength
+
+  const handleReplay = () => {
+    if (atLivePosition) {
+      onChange(0)
+      setIsReplaying(true)
+    } else {
+      setIsReplaying((r) => !r)
+    }
+  }
 
   return (
     <Container>
       <SliderRow>
         <Label>{label}</Label>
         <Slider
-          type="range"
+          type='range'
           min={0}
           max={historyLength}
           value={historyIndex}
@@ -111,23 +98,25 @@ const HistoryControl = ({
             setIsReplaying(false)
           }}
         />
-        <ActionButton onClick={onDone}>Done</ActionButton>
+        <Button $variant='secondary' onClick={onDone}>
+          Done
+        </Button>
       </SliderRow>
       <ButtonRow>
-        <ActionButton
+        <Button $flex={1} onClick={handleReplay}>
+          {isReplaying
+            ? '⏸ Pause'
+            : atLivePosition
+              ? 'Replay From Start'
+              : '▶ Play'}
+        </Button>
+        <Button
           $flex={1}
-          onClick={() => setIsReplaying((r) => !r)}
-          disabled={atEnd && !isReplaying}
-        >
-          {isReplaying ? '⏸ Pause' : '▶ Play'}
-        </ActionButton>
-        <ActionButton
-          $flex={2}
           onClick={handlePlayFromHere}
           disabled={atLivePosition}
         >
           Play From Here
-        </ActionButton>
+        </Button>
       </ButtonRow>
     </Container>
   )
