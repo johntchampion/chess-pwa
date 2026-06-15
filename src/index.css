@@ -363,3 +363,15 @@ button>img {
     justify-content: center;
     align-items: center;
 }
+
+@keyframes piece-pickup {
+    from {
+        transform: scale(1);
+        filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0));
+    }
+
+    to {
+        transform: scale(1.25) translateY(-1rem);
+        filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.75));
+    }
+}

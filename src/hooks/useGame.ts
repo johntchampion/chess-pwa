@@ -122,7 +122,14 @@ const useGame = () => {
   const historyLength = historyMoves.length
   const isViewingHistory = historyIndex !== null
 
-  const PIECE_SORT: Record<string, number> = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
+  const PIECE_SORT: Record<string, number> = {
+    p: 0,
+    n: 1,
+    b: 2,
+    r: 3,
+    q: 4,
+    k: 5,
+  }
   const capturedByWhite: string[] = []
   const capturedByBlack: string[] = []
   for (const move of historyMoves) {
@@ -242,6 +249,19 @@ const useGame = () => {
     setIsPrevLoading(false)
   }
 
+  const playFromHere = (targetIndex: number) => {
+    const moves = game.history({ verbose: true })
+    const movesToKeep = moves.slice(0, targetIndex)
+    const newGame = new Chess()
+    movesToKeep.forEach((m) =>
+      newGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
+    )
+    clearPreview()
+    setGame(newGame)
+    setHistoryIndex(null)
+    setFocusedSquare(undefined)
+  }
+
   const resetGameHandler = () => {
     setOldGameState({ fen: game.fen(), color: playerColorFull })
     clearPreview()
@@ -295,10 +315,17 @@ const useGame = () => {
     setIsSuggestLoading(true)
 
     chessAPI
-      .post<SuggestMoveResponse>('/suggest-move', { fen: game.fen(), skill_level: difficulty }, { signal: controller.signal })
+      .post<SuggestMoveResponse>(
+        '/suggest-move',
+        { fen: game.fen(), skill_level: difficulty },
+        { signal: controller.signal },
+      )
       .then((response) => {
         const bestMoveStr = response.data?.best_move
-        if (!bestMoveStr) { setIsSuggestLoading(false); return }
+        if (!bestMoveStr) {
+          setIsSuggestLoading(false)
+          return
+        }
 
         // Compute the board position after the suggested move so react-chessboard
         // can animate the piece moving to the target square.
@@ -314,7 +341,7 @@ const useGame = () => {
           previewTimerRef.current = setTimeout(() => {
             setPreview(undefined)
             setIsSuggestLoading(false)
-          }, 1500)
+          }, 700)
         } catch {
           // API returned an illegal move — silently ignore.
           setIsSuggestLoading(false)
@@ -335,7 +362,11 @@ const useGame = () => {
 
     const beforeLastMoveGame = new Chess()
     moves.slice(0, -1).forEach((m) =>
-      beforeLastMoveGame.move({ from: m.from, to: m.to, promotion: m.promotion }),
+      beforeLastMoveGame.move({
+        from: m.from,
+        to: m.to,
+        promotion: m.promotion,
+      }),
     )
 
     clearPreview()
@@ -344,7 +375,7 @@ const useGame = () => {
     previewTimerRef.current = setTimeout(() => {
       setPreview(undefined)
       setIsPrevLoading(false)
-    }, 1500)
+    }, 700)
   }
 
   // Handles what happens when a piece is dropped on a square.
@@ -352,7 +383,8 @@ const useGame = () => {
     sourceSquare,
     targetSquare,
   }: PieceDropHandlerArgs): boolean => {
-    if (isViewingHistory || preview || isSuggestLoading || !targetSquare) return false
+    if (isViewingHistory || preview || isSuggestLoading || !targetSquare)
+      return false
     return (
       makeMove({ from: sourceSquare, to: targetSquare, promotion: 'q' }) !==
       null
@@ -436,6 +468,7 @@ const useGame = () => {
     enterHistoryView,
     exitHistoryView,
     setHistoryIndex,
+    playFromHere,
     resetGameHandler,
     resetWithColor,
     undoMoveHandler,

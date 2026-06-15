@@ -8,6 +8,15 @@ const AppShell = styled.div`
   height: 100%;
   overflow: hidden;
   background-color: var(--color-app-bg);
+
+  @media (min-width: 40rem) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding-top: 1rem;
+  }
 `
 
 function App() {
@@ -40,6 +49,7 @@ function App() {
     enterHistoryView,
     exitHistoryView,
     setHistoryIndex,
+    playFromHere,
     resetGameHandler,
     resetWithColor,
     undoMoveHandler,
@@ -86,6 +96,7 @@ function App() {
         enterHistoryView={enterHistoryView}
         exitHistoryView={exitHistoryView}
         setHistoryIndex={setHistoryIndex}
+        playFromHere={playFromHere}
         resetGameHandler={resetGameHandler}
         resetWithColor={resetWithColor}
         undoMoveHandler={undoMoveHandler}
